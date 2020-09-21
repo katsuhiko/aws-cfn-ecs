@@ -1,0 +1,96 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Security Group Template For Web
+Parameters:
+  NameTagPrefix:
+    Type: String
+    Default: demo
+    Description: Prefix of Name tags.
+  RDSConnectionPort:
+    Type: String
+    Default: 3306
+    Description: Port for DB connection (3306:mysql)
+
+Resources:
+  ##############################
+  # SecurityGroup
+  ##############################
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId:
+        Fn::ImportValue: !Sub ${NameTagPrefix}-vpc
+      GroupDescription: Security group for ALB (http/https)
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '80'
+        ToPort: '80'
+        CidrIp: '0.0.0.0/0'
+      - IpProtocol: tcp
+        FromPort: '443'
+        ToPort: '443'
+        CidrIp: '0.0.0.0/0'
+      Tags:
+      - Key: Name
+        Value: !Sub '${NameTagPrefix}-alb-sg'
+
+  WebSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId:
+        Fn::ImportValue: !Sub ${NameTagPrefix}-vpc
+      GroupDescription: Security group for Web (Application)
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '80'
+        ToPort: '80'
+        SourceSecurityGroupId: !Ref 'ALBSecurityGroup'
+      Tags:
+      - Key: Name
+        Value: !Sub '${NameTagPrefix}-web-sg'
+
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId:
+        Fn::ImportValue: !Sub ${NameTagPrefix}-vpc
+      GroupDescription: Security group for RDS
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: !Ref 'RDSConnectionPort'
+        ToPort: !Ref 'RDSConnectionPort'
+        SourceSecurityGroupId: !Ref 'WebSecurityGroup'
+      - IpProtocol: tcp
+        FromPort: !Ref 'RDSConnectionPort'
+        ToPort: !Ref 'RDSConnectionPort'
+        SourceSecurityGroupId: !Ref 'BastionSecurityGroup'
+      Tags:
+      - Key: Name
+        Value: !Sub '${NameTagPrefix}-rds-sg'
+
+  BastionSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId:
+        Fn::ImportValue: !Sub ${NameTagPrefix}-vpc
+      GroupDescription: Security group for Bastion
+      Tags:
+      - Key: Name
+        Value: !Sub '${NameTagPrefix}-bastion-sg'
+
+Outputs:
+  ALBSecurityGroup: 
+    Value: !Ref 'ALBSecurityGroup'
+    Export:
+      Name: !Sub '${NameTagPrefix}-alb-sg'
+  WebSecurityGroup: 
+    Value: !Ref 'WebSecurityGroup'
+    Export:
+      Name: !Sub '${NameTagPrefix}-web-sg'
+  RDSSecurityGroup: 
+    Value: !Ref 'RDSSecurityGroup'
+    Export:
+      Name: !Sub '${NameTagPrefix}-rds-sg'
+  BastionSecurityGroup: 
+    Value: !Ref 'BastionSecurityGroup'
+    Export:
+      Name: !Sub '${NameTagPrefix}-bastion-sg'
