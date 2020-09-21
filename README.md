@@ -12,17 +12,18 @@ source ~/.bashrc
 ### validate
 
 ```
-aws cloudformation validate-template --template-body file://vpc.yml
+aws cloudformation validate-template --template-body file://vpc.yml --profile demo
 ```
 
 ### create
 
 ```
-aws cloudformation create-stack --stack-name demo-vpc --template-body file://vpc.yml
+aws cloudformation create-stack --stack-name demo-vpc --template-body file://vpc.yml --profile demo
 ```
 
 ### update
 
 ```
-aws cloudformation update-stack --stack-name demo-vpc --template-body file://vpc.yml
+aws cloudformation update-stack --stack-name demo-vpc --template-body file://vpc.yml --profile demo
 ```
+
