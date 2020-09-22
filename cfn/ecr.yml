@@ -35,14 +35,6 @@ Resources:
 
 Outputs:
   AppRepository:
-    Value:
-      !Sub [
-        "${Param1}.dkr.ecr.${Param2}.amazonaws.com/${Param3}",
-        {
-          Param1: !Ref "AWS::AccountId",
-          Param2: !Ref "AWS::Region",
-          Param3: !Ref "AppRepository",
-        },
-      ]
+    Value: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${AppRepository}"
     Export:
       Name: !Sub "${NameTagPrefix}-app-repository"
