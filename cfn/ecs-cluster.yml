@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: ECS Cluster Template
+Parameters:
+  NameTagPrefix:
+    Type: String
+    Default: demo
+    Description: Prefix of Name tags.
+
+Resources:
+  ##############################
+  # ECS Cluster
+  ##############################
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub '${NameTagPrefix}-ecs-cluster'
+
+Outputs:
+  Repository: 
+    Value: !Ref 'ECSCluster'
+    Export:
+      Name: !Sub '${NameTagPrefix}-ecs-cluster'

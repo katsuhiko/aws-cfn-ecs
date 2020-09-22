@@ -5,4 +5,4 @@ var app = function(req, res) {
   res.end('Hello\n');
 };
 
-http.createServer(app).listen(3000);
+http.createServer(app).listen(80);

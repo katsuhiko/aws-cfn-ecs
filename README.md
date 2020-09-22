@@ -21,3 +21,6 @@ aws cloudformation deploy --stack-name demo-vpc --template-file ./cfn/vpc.yml --
 aws cloudformation deploy --stack-name demo-vpc --template-file ./cfn/vpc.yml --profile demo
 ```
 
+```
+aws cloudformation deploy --stack-name demo-ecs-service --template-file ./cfn/ecs-service.yml --capabilities CAPABILITY_NAMED_IAM --profile demo
+```

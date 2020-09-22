@@ -7,7 +7,7 @@
 
 ```
 docker build -t sample-app:latest .
-docker run --name sample-app -p 3000:3000 -d sample-app:latest
+docker run --name sample-app -p 80:80 -d sample-app:latest
 ```
 
 ```

@@ -35,3 +35,14 @@ aws cloudformation create-stack --stack-name demo-vpc --template-body file://vpc
 aws cloudformation update-stack --stack-name demo-vpc --template-body file://vpc.yml --profile demo
 ```
 
+
+## ECR への Image プッシュ
+
+```
+cd demo-app
+
+aws ecr get-login-password --region ap-northeast-1 --profile demo | docker login --username AWS --password-stdin XXXXXXXXXXXX.dkr.ecr.ap-northeast-1.amazonaws.com
+docker build -t demo-repository .
+docker tag demo-repository:latest XXXXXXXXXXXX.dkr.ecr.ap-northeast-1.amazonaws.com/demo-repository:latest
+docker push XXXXXXXXXXXX.dkr.ecr.ap-northeast-1.amazonaws.com/demo-repository:latest
+```
