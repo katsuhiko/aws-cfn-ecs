@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Description: ECR Template
 Parameters:
   NameTagPrefix:
@@ -13,7 +13,7 @@ Resources:
   Repository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub '${NameTagPrefix}-repository'
+      RepositoryName: !Sub "${NameTagPrefix}-repository"
       LifecyclePolicy:
         LifecyclePolicyText: |
           {
@@ -34,11 +34,11 @@ Resources:
           }
 
 Outputs:
-  Repository: 
-    Value: !Ref 'Repository'
+  Repository:
+    Value: !Ref "Repository"
     Export:
-      Name: !Sub '${NameTagPrefix}-repository'
-  RepositoryArn: 
+      Name: !Sub "${NameTagPrefix}-repository"
+  RepositoryArn:
     Value: !GetAtt Repository.Arn
     Export:
-      Name: !Sub '${NameTagPrefix}-repository-arn'
+      Name: !Sub "${NameTagPrefix}-repository-arn"

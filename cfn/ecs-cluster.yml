@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Description: ECS Cluster Template
 Parameters:
   NameTagPrefix:
@@ -13,10 +13,10 @@ Resources:
   ECSCluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: !Sub '${NameTagPrefix}-ecs-cluster'
+      ClusterName: !Sub "${NameTagPrefix}-ecs-cluster"
 
 Outputs:
-  Repository: 
-    Value: !Ref 'ECSCluster'
+  Repository:
+    Value: !Ref "ECSCluster"
     Export:
-      Name: !Sub '${NameTagPrefix}-ecs-cluster'
+      Name: !Sub "${NameTagPrefix}-ecs-cluster"

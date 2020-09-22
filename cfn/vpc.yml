@@ -1,10 +1,10 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Description: VPC Network Template For Web
 Parameters:
   VPCCIDR:
     Description: First and Second Octet of VPC, For example xxx.xxx (192.168 / 172.16-31 / 10.0-255)
     Type: String
-    Default: '10.0'
+    Default: "10.0"
   NameTagPrefix:
     Type: String
     Default: demo
@@ -39,13 +39,17 @@ Resources:
   VPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, VPC, CIDR]}]
+      CidrBlock:
+        !Sub [
+          "${VPCCIDR}${Param1}",
+          { Param1: !FindInMap [StackConfig, VPC, CIDR] },
+        ]
       EnableDnsSupport: true
       EnableDnsHostnames: true
       InstanceTenancy: default
       Tags:
-      - Key: Name
-        Value: !Sub '${NameTagPrefix}-vpc'
+        - Key: Name
+          Value: !Sub "${NameTagPrefix}-vpc"
 
   ##############################
   # Gateway
@@ -54,13 +58,13 @@ Resources:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
-      - Key: Name
-        Value: !Sub '${NameTagPrefix}-igw'
+        - Key: Name
+          Value: !Sub "${NameTagPrefix}-igw"
   AttachGateway:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
-      VpcId: !Ref 'VPC'
-      InternetGatewayId: !Ref 'InternetGateway'
+      VpcId: !Ref "VPC"
+      InternetGatewayId: !Ref "InternetGateway"
 
   ##############################
   # Route / RouteTable
@@ -69,42 +73,42 @@ Resources:
     Type: AWS::EC2::RouteTable
     DependsOn: AttachGateway
     Properties:
-      VpcId: !Ref 'VPC'
+      VpcId: !Ref "VPC"
       Tags:
-      - Key: Name
-        Value: !Sub '${NameTagPrefix}-frontend-route-table'
+        - Key: Name
+          Value: !Sub "${NameTagPrefix}-frontend-route-table"
   FrontendRoute:
     Type: AWS::EC2::Route
     DependsOn: AttachGateway
     Properties:
-      RouteTableId: !Ref 'FrontendRouteTable'
+      RouteTableId: !Ref "FrontendRouteTable"
       DestinationCidrBlock: 0.0.0.0/0
-      GatewayId: !Ref 'InternetGateway'
+      GatewayId: !Ref "InternetGateway"
 
   ApplicationRouteTable:
     Type: AWS::EC2::RouteTable
     DependsOn: AttachGateway
     Properties:
-      VpcId: !Ref 'VPC'
+      VpcId: !Ref "VPC"
       Tags:
-      - Key: Name
-        Value: !Sub '${NameTagPrefix}-application-route-table'
+        - Key: Name
+          Value: !Sub "${NameTagPrefix}-application-route-table"
   ApplicationRoute:
     Type: AWS::EC2::Route
     DependsOn: AttachGateway
     Properties:
-      RouteTableId: !Ref 'ApplicationRouteTable'
+      RouteTableId: !Ref "ApplicationRouteTable"
       DestinationCidrBlock: 0.0.0.0/0
-      GatewayId: !Ref 'InternetGateway'
+      GatewayId: !Ref "InternetGateway"
 
   DatastoreRouteTable:
     Type: AWS::EC2::RouteTable
     DependsOn: AttachGateway
     Properties:
-      VpcId: !Ref 'VPC'
+      VpcId: !Ref "VPC"
       Tags:
-      - Key: Name
-        Value: !Sub '${NameTagPrefix}-datastore-route-table'
+        - Key: Name
+          Value: !Sub "${NameTagPrefix}-datastore-route-table"
 
   ##############################
   # Subnet
@@ -112,239 +116,311 @@ Resources:
   FrontendSubnet1:
     Type: AWS::EC2::Subnet
     DependsOn:
-    - AttachGateway
+      - AttachGateway
     Properties:
-      AvailabilityZone: !Select [0, !GetAZs {Ref: 'AWS::Region'}]
-      CidrBlock: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, FrontendSubnet1, CIDR]}]
+      AvailabilityZone: !Select [0, !GetAZs { Ref: "AWS::Region" }]
+      CidrBlock:
+        !Sub [
+          "${VPCCIDR}${Param1}",
+          { Param1: !FindInMap [StackConfig, FrontendSubnet1, CIDR] },
+        ]
       Tags:
-      - Key: Name
-        Value: !Sub '${NameTagPrefix}-frontend-subnet1'
-      VpcId: !Ref 'VPC'
+        - Key: Name
+          Value: !Sub "${NameTagPrefix}-frontend-subnet1"
+      VpcId: !Ref "VPC"
   FrontendSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref 'FrontendSubnet1'
-      RouteTableId: !Ref 'FrontendRouteTable'
+      SubnetId: !Ref "FrontendSubnet1"
+      RouteTableId: !Ref "FrontendRouteTable"
   FrontendSubnet2:
     Type: AWS::EC2::Subnet
     DependsOn:
-    - AttachGateway
+      - AttachGateway
     Properties:
-      AvailabilityZone: !Select [1, !GetAZs {Ref: 'AWS::Region'}]
-      CidrBlock: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, FrontendSubnet2, CIDR]}]
+      AvailabilityZone: !Select [1, !GetAZs { Ref: "AWS::Region" }]
+      CidrBlock:
+        !Sub [
+          "${VPCCIDR}${Param1}",
+          { Param1: !FindInMap [StackConfig, FrontendSubnet2, CIDR] },
+        ]
       Tags:
-      - Key: Name
-        Value: !Sub '${NameTagPrefix}-frontend-subnet2'
-      VpcId: !Ref 'VPC'
+        - Key: Name
+          Value: !Sub "${NameTagPrefix}-frontend-subnet2"
+      VpcId: !Ref "VPC"
   FrontendSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref 'FrontendSubnet2'
-      RouteTableId: !Ref 'FrontendRouteTable'
+      SubnetId: !Ref "FrontendSubnet2"
+      RouteTableId: !Ref "FrontendRouteTable"
   FrontendSubnet3:
     Type: AWS::EC2::Subnet
     DependsOn:
-    - AttachGateway
+      - AttachGateway
     Properties:
-      AvailabilityZone: !Select [2, !GetAZs {Ref: 'AWS::Region'}]
-      CidrBlock: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, FrontendSubnet3, CIDR]}]
+      AvailabilityZone: !Select [2, !GetAZs { Ref: "AWS::Region" }]
+      CidrBlock:
+        !Sub [
+          "${VPCCIDR}${Param1}",
+          { Param1: !FindInMap [StackConfig, FrontendSubnet3, CIDR] },
+        ]
       Tags:
-      - Key: Name
-        Value: !Sub '${NameTagPrefix}-frontend-subnet3'
-      VpcId: !Ref 'VPC'
+        - Key: Name
+          Value: !Sub "${NameTagPrefix}-frontend-subnet3"
+      VpcId: !Ref "VPC"
   FrontendSubnet3RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref 'FrontendSubnet3'
-      RouteTableId: !Ref 'FrontendRouteTable'
+      SubnetId: !Ref "FrontendSubnet3"
+      RouteTableId: !Ref "FrontendRouteTable"
 
   ApplicationSubnet1:
     Type: AWS::EC2::Subnet
     DependsOn:
-    - AttachGateway
+      - AttachGateway
     Properties:
-      AvailabilityZone: !Select [0, !GetAZs {Ref: 'AWS::Region'}]
-      CidrBlock: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, ApplicationSubnet1, CIDR]}]
+      AvailabilityZone: !Select [0, !GetAZs { Ref: "AWS::Region" }]
+      CidrBlock:
+        !Sub [
+          "${VPCCIDR}${Param1}",
+          { Param1: !FindInMap [StackConfig, ApplicationSubnet1, CIDR] },
+        ]
       Tags:
-      - Key: Name
-        Value: !Sub '${NameTagPrefix}-application-subnet1'
-      VpcId: !Ref 'VPC'
+        - Key: Name
+          Value: !Sub "${NameTagPrefix}-application-subnet1"
+      VpcId: !Ref "VPC"
   ApplicationSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref 'ApplicationSubnet1'
-      RouteTableId: !Ref 'ApplicationRouteTable'
+      SubnetId: !Ref "ApplicationSubnet1"
+      RouteTableId: !Ref "ApplicationRouteTable"
   ApplicationSubnet2:
     Type: AWS::EC2::Subnet
     DependsOn:
       - AttachGateway
     Properties:
-      AvailabilityZone: !Select [1, !GetAZs {Ref: 'AWS::Region'}]
-      CidrBlock: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, ApplicationSubnet2, CIDR]}]
+      AvailabilityZone: !Select [1, !GetAZs { Ref: "AWS::Region" }]
+      CidrBlock:
+        !Sub [
+          "${VPCCIDR}${Param1}",
+          { Param1: !FindInMap [StackConfig, ApplicationSubnet2, CIDR] },
+        ]
       Tags:
-      - Key: Name
-        Value: !Sub '${NameTagPrefix}-application-subnet2'
-      VpcId: !Ref 'VPC'
+        - Key: Name
+          Value: !Sub "${NameTagPrefix}-application-subnet2"
+      VpcId: !Ref "VPC"
   ApplicationSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref 'ApplicationSubnet2'
-      RouteTableId: !Ref 'ApplicationRouteTable'
+      SubnetId: !Ref "ApplicationSubnet2"
+      RouteTableId: !Ref "ApplicationRouteTable"
   ApplicationSubnet3:
     Type: AWS::EC2::Subnet
     DependsOn:
       - AttachGateway
     Properties:
-      AvailabilityZone: !Select [2, !GetAZs {Ref: 'AWS::Region'}]
-      CidrBlock: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, ApplicationSubnet3, CIDR]}]
+      AvailabilityZone: !Select [2, !GetAZs { Ref: "AWS::Region" }]
+      CidrBlock:
+        !Sub [
+          "${VPCCIDR}${Param1}",
+          { Param1: !FindInMap [StackConfig, ApplicationSubnet3, CIDR] },
+        ]
       Tags:
-      - Key: Name
-        Value: !Sub '${NameTagPrefix}-application-subnet3'
-      VpcId: !Ref 'VPC'
+        - Key: Name
+          Value: !Sub "${NameTagPrefix}-application-subnet3"
+      VpcId: !Ref "VPC"
   ApplicationSubnet3RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref 'ApplicationSubnet3'
-      RouteTableId: !Ref 'ApplicationRouteTable'
+      SubnetId: !Ref "ApplicationSubnet3"
+      RouteTableId: !Ref "ApplicationRouteTable"
 
   DatastoreSubnet1:
     Type: AWS::EC2::Subnet
     DependsOn:
-    - AttachGateway
+      - AttachGateway
     Properties:
-      AvailabilityZone: !Select [0, !GetAZs {Ref: 'AWS::Region'}]
-      CidrBlock: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, DatastoreSubnet1, CIDR]}]
+      AvailabilityZone: !Select [0, !GetAZs { Ref: "AWS::Region" }]
+      CidrBlock:
+        !Sub [
+          "${VPCCIDR}${Param1}",
+          { Param1: !FindInMap [StackConfig, DatastoreSubnet1, CIDR] },
+        ]
       Tags:
-      - Key: Name
-        Value: !Sub '${NameTagPrefix}-datastore-subnet1'
-      VpcId: !Ref 'VPC'
+        - Key: Name
+          Value: !Sub "${NameTagPrefix}-datastore-subnet1"
+      VpcId: !Ref "VPC"
   DatastoreSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref 'DatastoreSubnet1'
-      RouteTableId: !Ref 'DatastoreRouteTable'
+      SubnetId: !Ref "DatastoreSubnet1"
+      RouteTableId: !Ref "DatastoreRouteTable"
   DatastoreSubnet2:
     Type: AWS::EC2::Subnet
     DependsOn:
-    - AttachGateway
+      - AttachGateway
     Properties:
-      AvailabilityZone: !Select [1, !GetAZs {Ref: 'AWS::Region'}]
-      CidrBlock: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, DatastoreSubnet2, CIDR]}]
+      AvailabilityZone: !Select [1, !GetAZs { Ref: "AWS::Region" }]
+      CidrBlock:
+        !Sub [
+          "${VPCCIDR}${Param1}",
+          { Param1: !FindInMap [StackConfig, DatastoreSubnet2, CIDR] },
+        ]
       Tags:
-      - Key: Name
-        Value: !Sub '${NameTagPrefix}-datastore-subnet2'
-      VpcId: !Ref 'VPC'
+        - Key: Name
+          Value: !Sub "${NameTagPrefix}-datastore-subnet2"
+      VpcId: !Ref "VPC"
   DatastoreSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref 'DatastoreSubnet2'
-      RouteTableId: !Ref 'DatastoreRouteTable'
+      SubnetId: !Ref "DatastoreSubnet2"
+      RouteTableId: !Ref "DatastoreRouteTable"
   DatastoreSubnet3:
     Type: AWS::EC2::Subnet
     DependsOn:
-    - AttachGateway
+      - AttachGateway
     Properties:
-      AvailabilityZone: !Select [2, !GetAZs {Ref: 'AWS::Region'}]
-      CidrBlock: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, DatastoreSubnet3, CIDR]}]
+      AvailabilityZone: !Select [2, !GetAZs { Ref: "AWS::Region" }]
+      CidrBlock:
+        !Sub [
+          "${VPCCIDR}${Param1}",
+          { Param1: !FindInMap [StackConfig, DatastoreSubnet3, CIDR] },
+        ]
       Tags:
-      - Key: Name
-        Value: !Sub '${NameTagPrefix}-datastore-subnet3'
-      VpcId: !Ref 'VPC'
+        - Key: Name
+          Value: !Sub "${NameTagPrefix}-datastore-subnet3"
+      VpcId: !Ref "VPC"
   DatastoreSubnet3RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref 'DatastoreSubnet3'
-      RouteTableId: !Ref 'DatastoreRouteTable'
+      SubnetId: !Ref "DatastoreSubnet3"
+      RouteTableId: !Ref "DatastoreRouteTable"
 
   DatastoreDBSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
-      DBSubnetGroupName: !Sub '${NameTagPrefix}-datastore-db-subnet-group'
+      DBSubnetGroupName: !Sub "${NameTagPrefix}-datastore-db-subnet-group"
       DBSubnetGroupDescription: Subnets available for the RDS DB Instance
       SubnetIds:
-      - !Ref 'DatastoreSubnet1'
-      - !Ref 'DatastoreSubnet2'
-      - !Ref 'DatastoreSubnet3'
+        - !Ref "DatastoreSubnet1"
+        - !Ref "DatastoreSubnet2"
+        - !Ref "DatastoreSubnet3"
 
 Outputs:
   VPC:
-    Value: !Ref 'VPC'
+    Value: !Ref "VPC"
     Export:
-      Name: !Sub '${NameTagPrefix}-vpc'
+      Name: !Sub "${NameTagPrefix}-vpc"
   Ipv4CidrBlock:
     Value: !GetAtt VPC.CidrBlock
 
-  FrontendRouteTable: 
-    Value: !Ref 'FrontendRouteTable'
+  FrontendRouteTable:
+    Value: !Ref "FrontendRouteTable"
     Export:
-      Name: !Sub '${NameTagPrefix}-frontend-route-table'
-  ApplicationRouteTable: 
-    Value: !Ref 'ApplicationRouteTable'
+      Name: !Sub "${NameTagPrefix}-frontend-route-table"
+  ApplicationRouteTable:
+    Value: !Ref "ApplicationRouteTable"
     Export:
-      Name: !Sub '${NameTagPrefix}-application-route-table'
-  DatastoreRouteTable: 
-    Value: !Ref 'DatastoreRouteTable'
+      Name: !Sub "${NameTagPrefix}-application-route-table"
+  DatastoreRouteTable:
+    Value: !Ref "DatastoreRouteTable"
     Export:
-      Name: !Sub '${NameTagPrefix}-datastore-route-table'
+      Name: !Sub "${NameTagPrefix}-datastore-route-table"
 
   FrontendSubnet1:
-    Value: !Ref 'FrontendSubnet1'
+    Value: !Ref "FrontendSubnet1"
     Export:
-      Name: !Sub '${NameTagPrefix}-frontend-subnet1'
+      Name: !Sub "${NameTagPrefix}-frontend-subnet1"
   FrontendSubnet2:
-    Value: !Ref 'FrontendSubnet2'
+    Value: !Ref "FrontendSubnet2"
     Export:
-      Name: !Sub '${NameTagPrefix}-frontend-subnet2'
+      Name: !Sub "${NameTagPrefix}-frontend-subnet2"
   FrontendSubnet3:
-    Value: !Ref 'FrontendSubnet3'
+    Value: !Ref "FrontendSubnet3"
     Export:
-      Name: !Sub '${NameTagPrefix}-frontend-subnet3'
+      Name: !Sub "${NameTagPrefix}-frontend-subnet3"
   FrontendSubnet1Ipv4Cidr:
-    Value: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, FrontendSubnet1, CIDR]}]
+    Value:
+      !Sub [
+        "${VPCCIDR}${Param1}",
+        { Param1: !FindInMap [StackConfig, FrontendSubnet1, CIDR] },
+      ]
   FrontendSubnet2Ipv4Cidr:
-    Value: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, FrontendSubnet2, CIDR]}]
+    Value:
+      !Sub [
+        "${VPCCIDR}${Param1}",
+        { Param1: !FindInMap [StackConfig, FrontendSubnet2, CIDR] },
+      ]
   FrontendSubnet3Ipv4Cidr:
-    Value: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, FrontendSubnet3, CIDR]}]
+    Value:
+      !Sub [
+        "${VPCCIDR}${Param1}",
+        { Param1: !FindInMap [StackConfig, FrontendSubnet3, CIDR] },
+      ]
 
   ApplicationSubnet1:
-    Value: !Ref 'ApplicationSubnet1'
+    Value: !Ref "ApplicationSubnet1"
     Export:
-      Name: !Sub '${NameTagPrefix}-application-subnet1'
+      Name: !Sub "${NameTagPrefix}-application-subnet1"
   ApplicationSubnet2:
-    Value: !Ref 'ApplicationSubnet2'
+    Value: !Ref "ApplicationSubnet2"
     Export:
-      Name: !Sub '${NameTagPrefix}-application-subnet2'
+      Name: !Sub "${NameTagPrefix}-application-subnet2"
   ApplicationSubnet3:
-    Value: !Ref 'ApplicationSubnet3'
+    Value: !Ref "ApplicationSubnet3"
     Export:
-      Name: !Sub '${NameTagPrefix}-application-subnet3'
+      Name: !Sub "${NameTagPrefix}-application-subnet3"
   ApplicationSubnet1Ipv4Cidr:
-    Value: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, ApplicationSubnet1, CIDR]}]
+    Value:
+      !Sub [
+        "${VPCCIDR}${Param1}",
+        { Param1: !FindInMap [StackConfig, ApplicationSubnet1, CIDR] },
+      ]
   ApplicationSubnet2Ipv4Cidr:
-    Value: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, ApplicationSubnet2, CIDR]}]
+    Value:
+      !Sub [
+        "${VPCCIDR}${Param1}",
+        { Param1: !FindInMap [StackConfig, ApplicationSubnet2, CIDR] },
+      ]
   ApplicationSubnet3Ipv4Cidr:
-    Value: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, ApplicationSubnet3, CIDR]}]
+    Value:
+      !Sub [
+        "${VPCCIDR}${Param1}",
+        { Param1: !FindInMap [StackConfig, ApplicationSubnet3, CIDR] },
+      ]
 
   DatastoreSubnet1:
-    Value: !Ref 'DatastoreSubnet1'
+    Value: !Ref "DatastoreSubnet1"
     Export:
-      Name: !Sub '${NameTagPrefix}-datastore-subnet1'
+      Name: !Sub "${NameTagPrefix}-datastore-subnet1"
   DatastoreSubnet2:
-    Value: !Ref 'DatastoreSubnet2'
+    Value: !Ref "DatastoreSubnet2"
     Export:
-      Name: !Sub '${NameTagPrefix}-datastore-subnet2'
+      Name: !Sub "${NameTagPrefix}-datastore-subnet2"
   DatastoreSubnet3:
-    Value: !Ref 'DatastoreSubnet3'
+    Value: !Ref "DatastoreSubnet3"
     Export:
-      Name: !Sub '${NameTagPrefix}-datastore-subnet3'
+      Name: !Sub "${NameTagPrefix}-datastore-subnet3"
   DatastoreSubnet1Ipv4Cidr:
-    Value: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, DatastoreSubnet1, CIDR]}]
+    Value:
+      !Sub [
+        "${VPCCIDR}${Param1}",
+        { Param1: !FindInMap [StackConfig, DatastoreSubnet1, CIDR] },
+      ]
   DatastoreSubnet2Ipv4Cidr:
-    Value: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, DatastoreSubnet2, CIDR]}]
+    Value:
+      !Sub [
+        "${VPCCIDR}${Param1}",
+        { Param1: !FindInMap [StackConfig, DatastoreSubnet2, CIDR] },
+      ]
   DatastoreSubnet3Ipv4Cidr:
-    Value: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, DatastoreSubnet3, CIDR]}]
+    Value:
+      !Sub [
+        "${VPCCIDR}${Param1}",
+        { Param1: !FindInMap [StackConfig, DatastoreSubnet3, CIDR] },
+      ]
 
-  DatastoreDBSubnetGroup: 
-    Value: !Ref 'DatastoreDBSubnetGroup'
+  DatastoreDBSubnetGroup:
+    Value: !Ref "DatastoreDBSubnetGroup"
     Export:
-      Name: !Sub '${NameTagPrefix}-datastore-db-subnet-group'
+      Name: !Sub "${NameTagPrefix}-datastore-db-subnet-group"

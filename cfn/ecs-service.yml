@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Description: ECS Cluster Template
 Parameters:
   NameTagPrefix:
@@ -14,31 +14,31 @@ Resources:
   ECSTaskRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub '${NameTagPrefix}-ecs-task-role'
+      RoleName: !Sub "${NameTagPrefix}-ecs-task-role"
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Principal:
               Service: ecs-tasks.amazonaws.com
-            Action: 'sts:AssumeRole'
+            Action: "sts:AssumeRole"
       ManagedPolicyArns:
-        - 'arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy'
+        - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 
   # Fargate の起動に必要な権限
   ECSExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub '${NameTagPrefix}-ecs-execution-role'
+      RoleName: !Sub "${NameTagPrefix}-ecs-execution-role"
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Principal:
               Service: ecs-tasks.amazonaws.com
-            Action: 'sts:AssumeRole'
+            Action: "sts:AssumeRole"
       ManagedPolicyArns:
-        - 'arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy'
+        - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 
   ##############################
   # ECS Task Denisition
@@ -46,13 +46,13 @@ Resources:
   ECSTaskLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub '/ecs/${NameTagPrefix}-template'
+      LogGroupName: !Sub "/ecs/${NameTagPrefix}-template"
       RetentionInDays: 3
 
   ECSTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: !Sub '${NameTagPrefix}-template'
+      Family: !Sub "${NameTagPrefix}-template"
       TaskRoleArn: !GetAtt ECSTaskRole.Arn
       ExecutionRoleArn: !GetAtt ECSExecutionRole.Arn
       RequiresCompatibilities:
@@ -62,7 +62,11 @@ Resources:
       NetworkMode: awsvpc
       ContainerDefinitions:
         - Name: app
-          Image: !Sub ['${Param1}.dkr.ecr.ap-northeast-1.amazonaws.com/${NameTagPrefix}-repository:init', {Param1: !Ref 'AWS::AccountId'}]
+          Image:
+            !Sub [
+              "${Param1}.dkr.ecr.ap-northeast-1.amazonaws.com/${NameTagPrefix}-repository:init",
+              { Param1: !Ref "AWS::AccountId" },
+            ]
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -83,7 +87,7 @@ Resources:
   ECSService:
     Type: AWS::ECS::Service
     Properties:
-      Cluster: {'Fn::ImportValue': !Sub '${NameTagPrefix}-ecs-cluster'}
+      Cluster: { "Fn::ImportValue": !Sub "${NameTagPrefix}-ecs-cluster" }
       ServiceName: !Sub ${NameTagPrefix}-ecs-service
       LaunchType: FARGATE
       DesiredCount: 1
@@ -92,22 +96,22 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: ENABLED
           SecurityGroups:
-            - {'Fn::ImportValue': !Sub '${NameTagPrefix}-alb-sg'}
+            - { "Fn::ImportValue": !Sub "${NameTagPrefix}-alb-sg" }
           Subnets:
-            - {'Fn::ImportValue': !Sub '${NameTagPrefix}-frontend-subnet1'}
-            - {'Fn::ImportValue': !Sub '${NameTagPrefix}-frontend-subnet2'}
-            - {'Fn::ImportValue': !Sub '${NameTagPrefix}-frontend-subnet3'}
+            - { "Fn::ImportValue": !Sub "${NameTagPrefix}-frontend-subnet1" }
+            - { "Fn::ImportValue": !Sub "${NameTagPrefix}-frontend-subnet2" }
+            - { "Fn::ImportValue": !Sub "${NameTagPrefix}-frontend-subnet3" }
 
 Outputs:
   ECSTaskRole:
     Value: !Ref ECSTaskRole
     Export:
-      Name: !Sub '${NameTagPrefix}-ecs-task-role'
+      Name: !Sub "${NameTagPrefix}-ecs-task-role"
 
   ECSExecutionRole:
     Value: !Ref ECSExecutionRole
     Export:
-      Name: !Sub '${NameTagPrefix}-ecs-execution-role'
+      Name: !Sub "${NameTagPrefix}-ecs-execution-role"
 
   ECSTaskLogGroup:
     Value: !Ref ECSTaskLogGroup
@@ -115,9 +119,9 @@ Outputs:
   ECSTaskDefinition:
     Value: !Ref ECSTaskDefinition
     Export:
-      Name: !Sub '${NameTagPrefix}-template'
+      Name: !Sub "${NameTagPrefix}-template"
 
   ECSService:
     Value: !Ref ECSService
     Export:
-      Name: !Sub '${NameTagPrefix}-ecs-service'
+      Name: !Sub "${NameTagPrefix}-ecs-service"
