@@ -12,12 +12,12 @@ source ~/.bashrc
 ### dry run(changeset)
 
 ```
-aws cloudformation deploy --stack-name demo-vpc --template-file ./vpc.yml --no-execute-changeset --profile demo
+aws cloudformation deploy --stack-name demo-vpc --template-file ./cfn/vpc.yml --no-execute-changeset --profile demo
 ```
 
 ### deploy
 
 ```
-aws cloudformation deploy --stack-name demo-vpc --template-file ./vpc.yml --profile demo
+aws cloudformation deploy --stack-name demo-vpc --template-file ./cfn/vpc.yml --profile demo
 ```
 
