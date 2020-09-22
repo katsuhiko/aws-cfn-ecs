@@ -10,10 +10,10 @@ Resources:
   ##############################
   # ECR
   ##############################
-  Repository:
+  AppRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub "${NameTagPrefix}-repository"
+      RepositoryName: !Sub "${NameTagPrefix}-app"
       LifecyclePolicy:
         LifecyclePolicyText: |
           {
@@ -34,11 +34,15 @@ Resources:
           }
 
 Outputs:
-  Repository:
-    Value: !Ref "Repository"
+  AppRepository:
+    Value:
+      !Sub [
+        "${Param1}.dkr.ecr.${Param2}.amazonaws.com/${Param3}",
+        {
+          Param1: !Ref "AWS::AccountId",
+          Param2: !Ref "AWS::Region",
+          Param3: !Ref "AppRepository",
+        },
+      ]
     Export:
-      Name: !Sub "${NameTagPrefix}-repository"
-  RepositoryArn:
-    Value: !GetAtt Repository.Arn
-    Export:
-      Name: !Sub "${NameTagPrefix}-repository-arn"
+      Name: !Sub "${NameTagPrefix}-app-repository"

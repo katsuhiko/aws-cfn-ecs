@@ -64,14 +64,17 @@ Resources:
         - Name: app
           Image:
             !Sub [
-              "${Param1}.dkr.ecr.ap-northeast-1.amazonaws.com/${NameTagPrefix}-repository:init",
-              { Param1: !Ref "AWS::AccountId" },
+              "${Param1}:init",
+              {
+                Param1:
+                  { "Fn::ImportValue": !Sub "${NameTagPrefix}-app-repository" },
+              },
             ]
           LogConfiguration:
             LogDriver: awslogs
             Options:
               awslogs-group: !Ref ECSTaskLogGroup
-              awslogs-region: ap-northeast-1
+              awslogs-region: !Ref "AWS::Region"
               awslogs-stream-prefix: ecs
           PortMappings:
             - HostPort: 80
@@ -88,7 +91,7 @@ Resources:
     Type: AWS::ECS::Service
     Properties:
       Cluster: { "Fn::ImportValue": !Sub "${NameTagPrefix}-ecs-cluster" }
-      ServiceName: !Sub ${NameTagPrefix}-ecs-service
+      ServiceName: !Sub ${NameTagPrefix}-service
       LaunchType: FARGATE
       DesiredCount: 1
       TaskDefinition: !Ref ECSTaskDefinition
@@ -103,24 +106,6 @@ Resources:
             - { "Fn::ImportValue": !Sub "${NameTagPrefix}-frontend-subnet3" }
 
 Outputs:
-  ECSTaskRole:
-    Value: !Ref ECSTaskRole
-    Export:
-      Name: !Sub "${NameTagPrefix}-ecs-task-role"
-
-  ECSExecutionRole:
-    Value: !Ref ECSExecutionRole
-    Export:
-      Name: !Sub "${NameTagPrefix}-ecs-execution-role"
-
-  ECSTaskLogGroup:
-    Value: !Ref ECSTaskLogGroup
-
-  ECSTaskDefinition:
-    Value: !Ref ECSTaskDefinition
-    Export:
-      Name: !Sub "${NameTagPrefix}-template"
-
   ECSService:
     Value: !Ref ECSService
     Export:

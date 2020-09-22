@@ -13,7 +13,7 @@ Resources:
   ECSCluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: !Sub "${NameTagPrefix}-ecs-cluster"
+      ClusterName: !Sub "${NameTagPrefix}-cluster"
 
 Outputs:
   Repository:

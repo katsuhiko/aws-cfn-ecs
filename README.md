@@ -7,6 +7,15 @@ echo "complete -C '/usr/local/bin/aws_completer' aws" >> ~/.bashrc
 source ~/.bashrc
 ```
 
+## CloudFormation ファイルの依存関係
+
+- vpc.yml : なし
+- sg.yml : vpc.yml
+- ecr.yml : なし
+- ecs-cluster.yml : なし
+- ecs-service.yml : vpc.yml, sg.yml, ecr.yml, ecs-cluster.yml
+
+
 ## CloudFormationの実行コマンド (VPC)
 
 ### dry run(changeset)
