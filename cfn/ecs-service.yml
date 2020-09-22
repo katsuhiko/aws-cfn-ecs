@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: ECS Cluster Template
+Description: ECS Service Template
 Parameters:
   NameTagPrefix:
     Type: String
