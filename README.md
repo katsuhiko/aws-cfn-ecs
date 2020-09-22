@@ -9,21 +9,15 @@ source ~/.bashrc
 
 ## CloudFormationの実行コマンド (VPC)
 
-### validate
+### dry run(changeset)
 
 ```
-aws cloudformation validate-template --template-body file://vpc.yml --profile demo
+aws cloudformation deploy --stack-name demo-vpc --template-file ./vpc.yml --no-execute-changeset --profile demo
 ```
 
-### create
+### deploy
 
 ```
-aws cloudformation create-stack --stack-name demo-vpc --template-body file://vpc.yml --profile demo
-```
-
-### update
-
-```
-aws cloudformation update-stack --stack-name demo-vpc --template-body file://vpc.yml --profile demo
+aws cloudformation deploy --stack-name demo-vpc --template-file ./vpc.yml --profile demo
 ```
 
