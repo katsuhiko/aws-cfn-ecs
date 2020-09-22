@@ -6,6 +6,11 @@
 - https://nopipi.hatenablog.com/entry/2019/04/27/155616
 
 
+## お名前.com で取得したドメインに対してRoute53でサブドメインだけ管理する方法
+
+- http://developersnote.jp/aws/route53.html
+
+
 ## CloudFormationの実行コマンド(非推奨!?)
 
 基本は deploy コマンドを使うほうが良いみたい。

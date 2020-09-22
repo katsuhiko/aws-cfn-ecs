@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Route53 Template
+Parameters:
+  NameTagPrefix:
+    Type: String
+    Default: demo
+    Description: Prefix of Name tags.
+  AppDomain:
+    Type: String
+    Default: demo.example.com
+    Description: Application domain.
+
+Resources:
+  ##############################
+  # Route53
+  ##############################
+  Route53HostedZone:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      Name: !Sub "${AppDomain}"
+
+  ##############################
+  # ACM
+  ##############################
+  ACMCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Sub "${AppDomain}"
+      SubjectAlternativeNames:
+        - !Sub "*.${AppDomain}"
+      DomainValidationOptions:
+        - DomainName: !Sub "${AppDomain}"
+          ValidationDomain: !Sub "${AppDomain}"
+      Tags:
+        - Key: Name
+          Value: !Sub '${NameTagPrefix}-certificate'
+      ValidationMethod: DNS
+
+Outputs:
+  Route53HostedZoneId:
+    Value: !Ref "Route53HostedZone"
+    Export:
+      Name: !Sub "${NameTagPrefix}-hosted-zone-id"
+  Route53HostedZoneName:
+    Value: !Sub ${AppDomain}
+    Export:
+      Name: !Sub "${NameTagPrefix}-hosted-zone-name"
+
+  ACMCertificateArn:
+    Value: !Ref "ACMCertificate"
+    Export:
+      Name: !Sub '${NameTagPrefix}-certificate-arn'

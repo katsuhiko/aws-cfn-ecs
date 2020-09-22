@@ -9,8 +9,11 @@ source ~/.bashrc
 
 ## CloudFormation ファイルの依存関係
 
+- route53.yml : なし
+
 - vpc.yml : なし
 - sg.yml : vpc.yml
+
 - ecr.yml : なし
 - ecs-cluster.yml : なし
 - ecs-service.yml : vpc.yml, sg.yml, ecr.yml, ecs-cluster.yml
@@ -35,5 +38,6 @@ aws cloudformation deploy --stack-name demo-ecs-service --template-file ./cfn/ec
 ```
 
 ```
-aws cloudformation deploy --stack-name demo-route53 --template-file ./cfn/route53.yml --profile demo --parameter-overrides BaseDomain=example.com
+aws cloudformation deploy --stack-name demo-route53 --template-file ./cfn/route53.yml --profile demo --parameter-overrides AppDomain=demo.example.com
+※ ドメインの条件により、AWS管理コンソールの Certificate Manager から「Route 53 でのレコードの作成」を行わないといけない。
 ```
