@@ -26,7 +26,7 @@ Resources:
           Weight: 9
 
 Outputs:
-  Repository:
+  ECSCluster:
     Value: !Ref "ECSCluster"
     Export:
       Name: !Sub "${NameTagPrefix}-ecs-cluster"
