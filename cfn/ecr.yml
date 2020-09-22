@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: ECR Template
+Parameters:
+  NameTagPrefix:
+    Type: String
+    Default: demo
+    Description: Prefix of Name tags.
+
+Resources:
+  ##############################
+  # ECR
+  ##############################
+  Repository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub '${NameTagPrefix}-repository'
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "description": "Delete old images",
+                "selection": {
+                  "tagStatus": "any",
+                  "countType": "imageCountMoreThan",
+                  "countNumber": 5
+                },
+                "action": {
+                  "type": "expire"
+                }
+              }
+            ]
+          }
+
+Outputs:
+  Repository: 
+    Value: !Ref 'Repository'
+    Export:
+      Name: !Sub '${NameTagPrefix}-repository'
+  RepositoryArn: 
+    Value: !GetAtt Repository.Arn
+    Export:
+      Name: !Sub '${NameTagPrefix}-repository-arn'
