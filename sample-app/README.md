@@ -6,9 +6,11 @@
 ## 実行方法
 
 ```
-docker build -t sample-app:latest . && docker run --name sample-app -p 3000:3000 -d sample-app:latest
+docker build -t sample-app:latest .
+docker run --name sample-app -p 3000:3000 -d sample-app:latest
 ```
 
 ```
-docker stop sample-app && docker rm sample-app
+docker stop sample-app
+docker rm sample-app
 ```
