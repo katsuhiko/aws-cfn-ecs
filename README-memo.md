@@ -1,6 +1,12 @@
-# AWS CloudFormation Command
+# AWS CloudFormation
 
-## CloudFormationの実行コマンド
+
+## VSCode で AWS CloudFormation(YAML) を作成する環境を整備
+
+- https://nopipi.hatenablog.com/entry/2019/04/27/155616
+
+
+## CloudFormationの実行コマンド(非推奨!?)
 
 基本は deploy コマンドを使うほうが良いみたい。
 

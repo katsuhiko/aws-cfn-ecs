@@ -311,11 +311,11 @@ Outputs:
   ApplicationSubnet2:
     Value: !Ref 'ApplicationSubnet2'
     Export:
-      Name: !Sub '${AWS::StackName}-application-subnet2'
+      Name: !Sub '${NameTagPrefix}-application-subnet2'
   ApplicationSubnet3:
     Value: !Ref 'ApplicationSubnet3'
     Export:
-      Name: !Sub '${AWS::StackName}-application-subnet3'
+      Name: !Sub '${NameTagPrefix}-application-subnet3'
   ApplicationSubnet1Ipv4Cidr:
     Value: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, ApplicationSubnet1, CIDR]}]
   ApplicationSubnet2Ipv4Cidr:
@@ -328,11 +328,11 @@ Outputs:
   DatastoreSubnet2:
     Value: !Ref 'DatastoreSubnet2'
     Export:
-      Name: !Sub '${AWS::StackName}-datastore-subnet2'
+      Name: !Sub '${NameTagPrefix}-datastore-subnet2'
   DatastoreSubnet3:
     Value: !Ref 'DatastoreSubnet3'
     Export:
-      Name: !Sub '${AWS::StackName}-datastore-subnet3'
+      Name: !Sub '${NameTagPrefix}-datastore-subnet3'
   DatastoreSubnet1Ipv4Cidr:
     Value: !Sub ['${VPCCIDR}${Param1}', {Param1: !FindInMap [StackConfig, DatastoreSubnet1, CIDR]}]
   DatastoreSubnet2Ipv4Cidr:
