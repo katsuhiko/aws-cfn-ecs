@@ -1,14 +1,14 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Route53 Template
 Parameters:
-  NameTagPrefix:
+  ProjectName:
     Type: String
     Default: demo
-    Description: Prefix of Name tags.
+    Description: Project name
   ZoneName:
     Type: String
     Default: demo.example.com
-    Description: Hosted zone name.
+    Description: Hosted zone name
 
 Resources:
   ##############################
@@ -33,20 +33,20 @@ Resources:
           ValidationDomain: !Sub "${ZoneName}"
       Tags:
         - Key: Name
-          Value: !Sub '${NameTagPrefix}-certificate'
+          Value: !Sub '${ProjectName}-certificate'
       ValidationMethod: DNS
 
 Outputs:
   Route53HostedZoneId:
     Value: !Ref "Route53HostedZone"
     Export:
-      Name: !Sub "${NameTagPrefix}-hosted-zone-id"
+      Name: !Sub "${ProjectName}-hosted-zone-id"
   Route53HostedZoneName:
     Value: !Sub ${ZoneName}
     Export:
-      Name: !Sub "${NameTagPrefix}-hosted-zone-name"
+      Name: !Sub "${ProjectName}-hosted-zone-name"
 
   ACMCertificateArn:
     Value: !Ref "ACMCertificate"
     Export:
-      Name: !Sub '${NameTagPrefix}-certificate-arn'
+      Name: !Sub '${ProjectName}-certificate-arn'

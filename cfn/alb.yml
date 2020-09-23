@@ -1,14 +1,14 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: LoadBalancer Template
 Parameters:
-  NameTagPrefix:
+  ProjectName:
     Type: String
     Default: demo
-    Description: Prefix of Name tags.
+    Description: Project name
   RecordName:
     Type: String
     Default: "*.demo.example.com"
-    Description: Record name.
+    Description: Record name
 
 Resources:
   ##############################
@@ -17,16 +17,16 @@ Resources:
   LoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: !Sub ${NameTagPrefix}-alb
+      Name: !Sub ${ProjectName}-alb
       Subnets:
-        - { "Fn::ImportValue": !Sub "${NameTagPrefix}-frontend-subnet1" }
-        - { "Fn::ImportValue": !Sub "${NameTagPrefix}-frontend-subnet2" }
-        - { "Fn::ImportValue": !Sub "${NameTagPrefix}-frontend-subnet3" }
+        - { "Fn::ImportValue": !Sub "${ProjectName}-frontend-subnet1" }
+        - { "Fn::ImportValue": !Sub "${ProjectName}-frontend-subnet2" }
+        - { "Fn::ImportValue": !Sub "${ProjectName}-frontend-subnet3" }
       SecurityGroups:
-        - { "Fn::ImportValue": !Sub "${NameTagPrefix}-alb-sg" }
+        - { "Fn::ImportValue": !Sub "${ProjectName}-alb-sg" }
       Tags:
         - Key: Name
-          Value: !Sub "${NameTagPrefix}-alb"
+          Value: !Sub "${ProjectName}-alb"
       Scheme: internet-facing
   LoadBalancerListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -36,7 +36,7 @@ Resources:
       Protocol: HTTPS
       Certificates:
         - CertificateArn:
-            { "Fn::ImportValue": !Sub "${NameTagPrefix}-certificate-arn" }
+            { "Fn::ImportValue": !Sub "${ProjectName}-certificate-arn" }
       SslPolicy: "ELBSecurityPolicy-2016-08"
       DefaultActions:
         - Type: fixed-response
@@ -49,7 +49,7 @@ Resources:
     Type: "AWS::Route53::RecordSetGroup"
     Properties:
       HostedZoneId:
-        { "Fn::ImportValue": !Sub "${NameTagPrefix}-hosted-zone-id" }
+        { "Fn::ImportValue": !Sub "${ProjectName}-hosted-zone-id" }
       RecordSets:
         - Name: !Sub "${RecordName}"
           Type: A
@@ -61,8 +61,8 @@ Outputs:
   LoadBalancerArn:
     Value: !Ref "LoadBalancer"
     Export:
-      Name: !Sub "${NameTagPrefix}-alb-arn"
+      Name: !Sub "${ProjectName}-alb-arn"
   LoadBalancerListenerArn:
     Value: !Ref "LoadBalancerListener"
     Export:
-      Name: !Sub "${NameTagPrefix}-alb-listener-arn"
+      Name: !Sub "${ProjectName}-alb-listener-arn"

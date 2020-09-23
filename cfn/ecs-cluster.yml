@@ -1,10 +1,10 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: ECS Cluster Template
 Parameters:
-  NameTagPrefix:
+  ProjectName:
     Type: String
     Default: demo
-    Description: Prefix of Name tags.
+    Description: Project name
 
 Resources:
   ##############################
@@ -13,7 +13,7 @@ Resources:
   ECSCluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: !Sub "${NameTagPrefix}-cluster"
+      ClusterName: !Sub "${ProjectName}-cluster"
       CapacityProviders:
         - FARGATE
         - FARGATE_SPOT
@@ -29,4 +29,4 @@ Outputs:
   ECSCluster:
     Value: !Ref "ECSCluster"
     Export:
-      Name: !Sub "${NameTagPrefix}-ecs-cluster"
+      Name: !Sub "${ProjectName}-ecs-cluster"

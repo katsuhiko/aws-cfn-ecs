@@ -1,10 +1,10 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Security Group Template For Web
 Parameters:
-  NameTagPrefix:
+  ProjectName:
     Type: String
     Default: demo
-    Description: Prefix of Name tags.
+    Description: Project name
   RDSConnectionPort:
     Type: String
     Default: 3306
@@ -17,7 +17,7 @@ Resources:
   ALBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: { "Fn::ImportValue": !Sub "${NameTagPrefix}-vpc" }
+      VpcId: { "Fn::ImportValue": !Sub "${ProjectName}-vpc" }
       GroupDescription: Security group for ALB (http/https)
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -30,12 +30,12 @@ Resources:
           CidrIp: "0.0.0.0/0"
       Tags:
         - Key: Name
-          Value: !Sub "${NameTagPrefix}-alb-sg"
+          Value: !Sub "${ProjectName}-alb-sg"
 
   WebSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: { "Fn::ImportValue": !Sub "${NameTagPrefix}-vpc" }
+      VpcId: { "Fn::ImportValue": !Sub "${ProjectName}-vpc" }
       GroupDescription: Security group for Web (Application)
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -44,12 +44,12 @@ Resources:
           SourceSecurityGroupId: !Ref "ALBSecurityGroup"
       Tags:
         - Key: Name
-          Value: !Sub "${NameTagPrefix}-web-sg"
+          Value: !Sub "${ProjectName}-web-sg"
 
   RDSSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: { "Fn::ImportValue": !Sub "${NameTagPrefix}-vpc" }
+      VpcId: { "Fn::ImportValue": !Sub "${ProjectName}-vpc" }
       GroupDescription: Security group for RDS
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -62,31 +62,31 @@ Resources:
           SourceSecurityGroupId: !Ref "BastionSecurityGroup"
       Tags:
         - Key: Name
-          Value: !Sub "${NameTagPrefix}-rds-sg"
+          Value: !Sub "${ProjectName}-rds-sg"
 
   BastionSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: { "Fn::ImportValue": !Sub "${NameTagPrefix}-vpc" }
+      VpcId: { "Fn::ImportValue": !Sub "${ProjectName}-vpc" }
       GroupDescription: Security group for Bastion
       Tags:
         - Key: Name
-          Value: !Sub "${NameTagPrefix}-bastion-sg"
+          Value: !Sub "${ProjectName}-bastion-sg"
 
 Outputs:
   ALBSecurityGroup:
     Value: !Ref "ALBSecurityGroup"
     Export:
-      Name: !Sub "${NameTagPrefix}-alb-sg"
+      Name: !Sub "${ProjectName}-alb-sg"
   WebSecurityGroup:
     Value: !Ref "WebSecurityGroup"
     Export:
-      Name: !Sub "${NameTagPrefix}-web-sg"
+      Name: !Sub "${ProjectName}-web-sg"
   RDSSecurityGroup:
     Value: !Ref "RDSSecurityGroup"
     Export:
-      Name: !Sub "${NameTagPrefix}-rds-sg"
+      Name: !Sub "${ProjectName}-rds-sg"
   BastionSecurityGroup:
     Value: !Ref "BastionSecurityGroup"
     Export:
-      Name: !Sub "${NameTagPrefix}-bastion-sg"
+      Name: !Sub "${ProjectName}-bastion-sg"

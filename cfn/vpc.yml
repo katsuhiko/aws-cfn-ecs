@@ -1,14 +1,14 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: VPC Network Template For Web
 Parameters:
-  VPCCIDR:
-    Description: First and Second Octet of VPC, For example xxx.xxx (192.168 / 172.16-31 / 10.0-255)
-    Type: String
-    Default: "10.0"
-  NameTagPrefix:
+  ProjectName:
     Type: String
     Default: demo
-    Description: Prefix of Name tags.
+    Description: Project name
+  VPCCIDR:
+    Type: String
+    Default: "10.0"
+    Description: First and Second Octet of VPC, For example xxx.xxx (192.168 / 172.16-31 / 10.0-255)
 Mappings:
   StackConfig:
     VPC:
@@ -49,7 +49,7 @@ Resources:
       InstanceTenancy: default
       Tags:
         - Key: Name
-          Value: !Sub "${NameTagPrefix}-vpc"
+          Value: !Sub "${ProjectName}-vpc"
 
   ##############################
   # Gateway
@@ -59,7 +59,7 @@ Resources:
     Properties:
       Tags:
         - Key: Name
-          Value: !Sub "${NameTagPrefix}-igw"
+          Value: !Sub "${ProjectName}-igw"
   AttachGateway:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
@@ -76,7 +76,7 @@ Resources:
       VpcId: !Ref "VPC"
       Tags:
         - Key: Name
-          Value: !Sub "${NameTagPrefix}-frontend-route-table"
+          Value: !Sub "${ProjectName}-frontend-route-table"
   FrontendRoute:
     Type: AWS::EC2::Route
     DependsOn: AttachGateway
@@ -92,7 +92,7 @@ Resources:
       VpcId: !Ref "VPC"
       Tags:
         - Key: Name
-          Value: !Sub "${NameTagPrefix}-application-route-table"
+          Value: !Sub "${ProjectName}-application-route-table"
   ApplicationRoute:
     Type: AWS::EC2::Route
     DependsOn: AttachGateway
@@ -108,7 +108,7 @@ Resources:
       VpcId: !Ref "VPC"
       Tags:
         - Key: Name
-          Value: !Sub "${NameTagPrefix}-datastore-route-table"
+          Value: !Sub "${ProjectName}-datastore-route-table"
 
   ##############################
   # Subnet
@@ -126,7 +126,7 @@ Resources:
         ]
       Tags:
         - Key: Name
-          Value: !Sub "${NameTagPrefix}-frontend-subnet1"
+          Value: !Sub "${ProjectName}-frontend-subnet1"
       VpcId: !Ref "VPC"
   FrontendSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -146,7 +146,7 @@ Resources:
         ]
       Tags:
         - Key: Name
-          Value: !Sub "${NameTagPrefix}-frontend-subnet2"
+          Value: !Sub "${ProjectName}-frontend-subnet2"
       VpcId: !Ref "VPC"
   FrontendSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -166,7 +166,7 @@ Resources:
         ]
       Tags:
         - Key: Name
-          Value: !Sub "${NameTagPrefix}-frontend-subnet3"
+          Value: !Sub "${ProjectName}-frontend-subnet3"
       VpcId: !Ref "VPC"
   FrontendSubnet3RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -187,7 +187,7 @@ Resources:
         ]
       Tags:
         - Key: Name
-          Value: !Sub "${NameTagPrefix}-application-subnet1"
+          Value: !Sub "${ProjectName}-application-subnet1"
       VpcId: !Ref "VPC"
   ApplicationSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -207,7 +207,7 @@ Resources:
         ]
       Tags:
         - Key: Name
-          Value: !Sub "${NameTagPrefix}-application-subnet2"
+          Value: !Sub "${ProjectName}-application-subnet2"
       VpcId: !Ref "VPC"
   ApplicationSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -227,7 +227,7 @@ Resources:
         ]
       Tags:
         - Key: Name
-          Value: !Sub "${NameTagPrefix}-application-subnet3"
+          Value: !Sub "${ProjectName}-application-subnet3"
       VpcId: !Ref "VPC"
   ApplicationSubnet3RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -248,7 +248,7 @@ Resources:
         ]
       Tags:
         - Key: Name
-          Value: !Sub "${NameTagPrefix}-datastore-subnet1"
+          Value: !Sub "${ProjectName}-datastore-subnet1"
       VpcId: !Ref "VPC"
   DatastoreSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -268,7 +268,7 @@ Resources:
         ]
       Tags:
         - Key: Name
-          Value: !Sub "${NameTagPrefix}-datastore-subnet2"
+          Value: !Sub "${ProjectName}-datastore-subnet2"
       VpcId: !Ref "VPC"
   DatastoreSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -288,7 +288,7 @@ Resources:
         ]
       Tags:
         - Key: Name
-          Value: !Sub "${NameTagPrefix}-datastore-subnet3"
+          Value: !Sub "${ProjectName}-datastore-subnet3"
       VpcId: !Ref "VPC"
   DatastoreSubnet3RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -299,7 +299,7 @@ Resources:
   DatastoreDBSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
-      DBSubnetGroupName: !Sub "${NameTagPrefix}-datastore-db-subnet-group"
+      DBSubnetGroupName: !Sub "${ProjectName}-datastore-db-subnet-group"
       DBSubnetGroupDescription: Subnets available for the RDS DB Instance
       SubnetIds:
         - !Ref "DatastoreSubnet1"
@@ -310,35 +310,35 @@ Outputs:
   VPC:
     Value: !Ref "VPC"
     Export:
-      Name: !Sub "${NameTagPrefix}-vpc"
+      Name: !Sub "${ProjectName}-vpc"
   Ipv4CidrBlock:
     Value: !GetAtt VPC.CidrBlock
 
   FrontendRouteTable:
     Value: !Ref "FrontendRouteTable"
     Export:
-      Name: !Sub "${NameTagPrefix}-frontend-route-table"
+      Name: !Sub "${ProjectName}-frontend-route-table"
   ApplicationRouteTable:
     Value: !Ref "ApplicationRouteTable"
     Export:
-      Name: !Sub "${NameTagPrefix}-application-route-table"
+      Name: !Sub "${ProjectName}-application-route-table"
   DatastoreRouteTable:
     Value: !Ref "DatastoreRouteTable"
     Export:
-      Name: !Sub "${NameTagPrefix}-datastore-route-table"
+      Name: !Sub "${ProjectName}-datastore-route-table"
 
   FrontendSubnet1:
     Value: !Ref "FrontendSubnet1"
     Export:
-      Name: !Sub "${NameTagPrefix}-frontend-subnet1"
+      Name: !Sub "${ProjectName}-frontend-subnet1"
   FrontendSubnet2:
     Value: !Ref "FrontendSubnet2"
     Export:
-      Name: !Sub "${NameTagPrefix}-frontend-subnet2"
+      Name: !Sub "${ProjectName}-frontend-subnet2"
   FrontendSubnet3:
     Value: !Ref "FrontendSubnet3"
     Export:
-      Name: !Sub "${NameTagPrefix}-frontend-subnet3"
+      Name: !Sub "${ProjectName}-frontend-subnet3"
   FrontendSubnet1Ipv4Cidr:
     Value:
       !Sub [
@@ -361,15 +361,15 @@ Outputs:
   ApplicationSubnet1:
     Value: !Ref "ApplicationSubnet1"
     Export:
-      Name: !Sub "${NameTagPrefix}-application-subnet1"
+      Name: !Sub "${ProjectName}-application-subnet1"
   ApplicationSubnet2:
     Value: !Ref "ApplicationSubnet2"
     Export:
-      Name: !Sub "${NameTagPrefix}-application-subnet2"
+      Name: !Sub "${ProjectName}-application-subnet2"
   ApplicationSubnet3:
     Value: !Ref "ApplicationSubnet3"
     Export:
-      Name: !Sub "${NameTagPrefix}-application-subnet3"
+      Name: !Sub "${ProjectName}-application-subnet3"
   ApplicationSubnet1Ipv4Cidr:
     Value:
       !Sub [
@@ -392,15 +392,15 @@ Outputs:
   DatastoreSubnet1:
     Value: !Ref "DatastoreSubnet1"
     Export:
-      Name: !Sub "${NameTagPrefix}-datastore-subnet1"
+      Name: !Sub "${ProjectName}-datastore-subnet1"
   DatastoreSubnet2:
     Value: !Ref "DatastoreSubnet2"
     Export:
-      Name: !Sub "${NameTagPrefix}-datastore-subnet2"
+      Name: !Sub "${ProjectName}-datastore-subnet2"
   DatastoreSubnet3:
     Value: !Ref "DatastoreSubnet3"
     Export:
-      Name: !Sub "${NameTagPrefix}-datastore-subnet3"
+      Name: !Sub "${ProjectName}-datastore-subnet3"
   DatastoreSubnet1Ipv4Cidr:
     Value:
       !Sub [
@@ -423,4 +423,4 @@ Outputs:
   DatastoreDBSubnetGroup:
     Value: !Ref "DatastoreDBSubnetGroup"
     Export:
-      Name: !Sub "${NameTagPrefix}-datastore-db-subnet-group"
+      Name: !Sub "${ProjectName}-datastore-db-subnet-group"

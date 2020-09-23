@@ -1,10 +1,10 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: ECS Service Template
 Parameters:
-  NameTagPrefix:
+  ProjectName:
     Type: String
     Default: demo
-    Description: Prefix of Name tags.
+    Description: Project name
 
 Resources:
   ##############################
@@ -14,7 +14,7 @@ Resources:
   ECSTaskRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub "${NameTagPrefix}-ecs-task-role"
+      RoleName: !Sub "${ProjectName}-ecs-task-role"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -29,7 +29,7 @@ Resources:
   ECSExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub "${NameTagPrefix}-ecs-execution-role"
+      RoleName: !Sub "${ProjectName}-ecs-execution-role"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -46,13 +46,13 @@ Resources:
   ECSTaskLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub "/ecs/${NameTagPrefix}-template"
+      LogGroupName: !Sub "/ecs/${ProjectName}-template"
       RetentionInDays: 3
 
   ECSTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: !Sub "${NameTagPrefix}-template"
+      Family: !Sub "${ProjectName}-template"
       TaskRoleArn: !GetAtt ECSTaskRole.Arn
       ExecutionRoleArn: !GetAtt ECSExecutionRole.Arn
       RequiresCompatibilities:
@@ -67,7 +67,7 @@ Resources:
               "${Param1}:latest",
               {
                 Param1:
-                  { "Fn::ImportValue": !Sub "${NameTagPrefix}-app-repository" },
+                  { "Fn::ImportValue": !Sub "${ProjectName}-app-repository" },
               },
             ]
           LogConfiguration:
@@ -90,8 +90,8 @@ Resources:
   ECSService:
     Type: AWS::ECS::Service
     Properties:
-      Cluster: { "Fn::ImportValue": !Sub "${NameTagPrefix}-ecs-cluster" }
-      ServiceName: !Sub ${NameTagPrefix}-service
+      Cluster: { "Fn::ImportValue": !Sub "${ProjectName}-ecs-cluster" }
+      ServiceName: !Sub ${ProjectName}-service
       LaunchType: FARGATE
       DesiredCount: 1
       TaskDefinition: !Ref ECSTaskDefinition
@@ -99,11 +99,11 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: ENABLED
           SecurityGroups:
-            - { "Fn::ImportValue": !Sub "${NameTagPrefix}-web-sg" }
+            - { "Fn::ImportValue": !Sub "${ProjectName}-web-sg" }
           Subnets:
-            - { "Fn::ImportValue": !Sub "${NameTagPrefix}-application-subnet1" }
-            - { "Fn::ImportValue": !Sub "${NameTagPrefix}-application-subnet2" }
-            - { "Fn::ImportValue": !Sub "${NameTagPrefix}-application-subnet3" }
+            - { "Fn::ImportValue": !Sub "${ProjectName}-application-subnet1" }
+            - { "Fn::ImportValue": !Sub "${ProjectName}-application-subnet2" }
+            - { "Fn::ImportValue": !Sub "${ProjectName}-application-subnet3" }
       LoadBalancers:
         - TargetGroupArn: !Ref TargetGroup
           ContainerPort: 80
@@ -115,8 +115,8 @@ Resources:
   TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: !Sub ${NameTagPrefix}-tg
-      VpcId: { "Fn::ImportValue": !Sub "${NameTagPrefix}-vpc" }
+      Name: !Sub ${ProjectName}-tg
+      VpcId: { "Fn::ImportValue": !Sub "${ProjectName}-vpc" }
       Port: 80
       Protocol: HTTP
       TargetType: ip
@@ -128,7 +128,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     Properties:
       ListenerArn:
-        { "Fn::ImportValue": !Sub "${NameTagPrefix}-alb-listener-arn" }
+        { "Fn::ImportValue": !Sub "${ProjectName}-alb-listener-arn" }
       Priority: 1
       Conditions:
         - Field: host-header
@@ -142,8 +142,8 @@ Outputs:
   ECSServiceArn:
     Value: !Ref ECSService
     Export:
-      Name: !Sub "${NameTagPrefix}-ecs-service-arn"
+      Name: !Sub "${ProjectName}-ecs-service-arn"
   TargetGroupArn:
     Value: !Ref TargetGroup
     Export:
-      Name: !Sub "${NameTagPrefix}-tg-arn"
+      Name: !Sub "${ProjectName}-tg-arn"

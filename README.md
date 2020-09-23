@@ -11,13 +11,10 @@ source ~/.bashrc
 
 - route53.yml : なし
 
-
 - vpc.yml : なし
 - sg.yml : vpc.yml
 
-
 - alb.yml : route53.yml, vpc.yml, sg.yml
-
 
 - ecr.yml : なし
 - ecs-cluster.yml : なし
@@ -35,12 +32,15 @@ aws cloudformation deploy --stack-name demo-vpc --template-file ./cfn/vpc.yml --
 ### deploy
 
 ```
-aws cloudformation deploy --stack-name demo-vpc --template-file ./cfn/vpc.yml --profile demo
-
-aws cloudformation deploy --stack-name demo-ecs-service --template-file ./cfn/ecs-service.yml --capabilities CAPABILITY_NAMED_IAM --profile demo
-
 aws cloudformation deploy --stack-name demo-route53 --template-file ./cfn/route53.yml --profile demo --parameter-overrides ZoneName=demo.example.com
 ※ ドメインの条件により、AWS管理コンソールの Certificate Manager から「Route 53 でのレコードの作成」を行わないといけない。
 
+aws cloudformation deploy --stack-name demo-vpc --template-file ./cfn/vpc.yml --profile demo
+aws cloudformation deploy --stack-name demo-sg --template-file ./cfn/sg.yml --profile demo
+
 aws cloudformation deploy --stack-name demo-alb --template-file ./cfn/alb.yml --profile demo --parameter-overrides RecordName="*.demo.example.com"
+
+aws cloudformation deploy --stack-name demo-ecr --template-file ./cfn/ecr.yml --profile demo
+aws cloudformation deploy --stack-name demo-ecs-cluster --template-file ./cfn/ecs-cluster.yml --profile demo
+aws cloudformation deploy --stack-name demo-ecs-service --template-file ./cfn/ecs-service.yml --capabilities CAPABILITY_NAMED_IAM --profile demo
 ```

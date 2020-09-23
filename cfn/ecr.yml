@@ -1,10 +1,10 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: ECR Template
 Parameters:
-  NameTagPrefix:
+  ProjectName:
     Type: String
     Default: demo
-    Description: Prefix of Name tags.
+    Description: Project name
 
 Resources:
   ##############################
@@ -13,7 +13,7 @@ Resources:
   AppRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub "${NameTagPrefix}-app"
+      RepositoryName: !Sub "${ProjectName}-app"
       LifecyclePolicy:
         LifecyclePolicyText: |
           {
@@ -37,4 +37,4 @@ Outputs:
   AppRepository:
     Value: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${AppRepository}"
     Export:
-      Name: !Sub "${NameTagPrefix}-app-repository"
+      Name: !Sub "${ProjectName}-app-repository"
