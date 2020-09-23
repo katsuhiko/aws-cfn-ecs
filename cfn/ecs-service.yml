@@ -99,11 +99,11 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: ENABLED
           SecurityGroups:
-            - { "Fn::ImportValue": !Sub "${NameTagPrefix}-alb-sg" }
+            - { "Fn::ImportValue": !Sub "${NameTagPrefix}-web-sg" }
           Subnets:
-            - { "Fn::ImportValue": !Sub "${NameTagPrefix}-frontend-subnet1" }
-            - { "Fn::ImportValue": !Sub "${NameTagPrefix}-frontend-subnet2" }
-            - { "Fn::ImportValue": !Sub "${NameTagPrefix}-frontend-subnet3" }
+            - { "Fn::ImportValue": !Sub "${NameTagPrefix}-application-subnet1" }
+            - { "Fn::ImportValue": !Sub "${NameTagPrefix}-application-subnet2" }
+            - { "Fn::ImportValue": !Sub "${NameTagPrefix}-application-subnet3" }
       LoadBalancers:
         - TargetGroupArn: !Ref TargetGroup
           ContainerPort: 80
