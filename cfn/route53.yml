@@ -5,10 +5,10 @@ Parameters:
     Type: String
     Default: demo
     Description: Prefix of Name tags.
-  AppDomain:
+  ZoneName:
     Type: String
     Default: demo.example.com
-    Description: Application domain.
+    Description: Hosted zone name.
 
 Resources:
   ##############################
@@ -17,7 +17,7 @@ Resources:
   Route53HostedZone:
     Type: AWS::Route53::HostedZone
     Properties:
-      Name: !Sub "${AppDomain}"
+      Name: !Sub "${ZoneName}"
 
   ##############################
   # ACM
@@ -25,12 +25,12 @@ Resources:
   ACMCertificate:
     Type: AWS::CertificateManager::Certificate
     Properties:
-      DomainName: !Sub "${AppDomain}"
+      DomainName: !Sub "${ZoneName}"
       SubjectAlternativeNames:
-        - !Sub "*.${AppDomain}"
+        - !Sub "*.${ZoneName}"
       DomainValidationOptions:
-        - DomainName: !Sub "${AppDomain}"
-          ValidationDomain: !Sub "${AppDomain}"
+        - DomainName: !Sub "${ZoneName}"
+          ValidationDomain: !Sub "${ZoneName}"
       Tags:
         - Key: Name
           Value: !Sub '${NameTagPrefix}-certificate'
@@ -42,7 +42,7 @@ Outputs:
     Export:
       Name: !Sub "${NameTagPrefix}-hosted-zone-id"
   Route53HostedZoneName:
-    Value: !Sub ${AppDomain}
+    Value: !Sub ${ZoneName}
     Export:
       Name: !Sub "${NameTagPrefix}-hosted-zone-name"
 

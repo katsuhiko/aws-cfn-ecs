@@ -48,6 +48,6 @@ cd demo
 
 aws ecr get-login-password --region ap-northeast-1 --profile demo | docker login --username AWS --password-stdin XXXXXXXXXXXX.dkr.ecr.ap-northeast-1.amazonaws.com
 docker build -t demo-app:latest .
-docker tag demo-app:latest XXXXXXXXXXXX.dkr.ecr.ap-northeast-1.amazonaws.com/demo-app:init
-docker push XXXXXXXXXXXX.dkr.ecr.ap-northeast-1.amazonaws.com/demo-app:init
+docker tag demo-app:latest XXXXXXXXXXXX.dkr.ecr.ap-northeast-1.amazonaws.com/demo-app:latest
+docker push XXXXXXXXXXXX.dkr.ecr.ap-northeast-1.amazonaws.com/demo-app:latest
 ```

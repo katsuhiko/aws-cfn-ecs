@@ -1,0 +1,68 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: LoadBalancer Template
+Parameters:
+  NameTagPrefix:
+    Type: String
+    Default: demo
+    Description: Prefix of Name tags.
+  RecordName:
+    Type: String
+    Default: "*.demo.example.com"
+    Description: Record name.
+
+Resources:
+  ##############################
+  # ALB
+  ##############################
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub ${NameTagPrefix}-alb
+      Subnets:
+        - { "Fn::ImportValue": !Sub "${NameTagPrefix}-frontend-subnet1" }
+        - { "Fn::ImportValue": !Sub "${NameTagPrefix}-frontend-subnet2" }
+        - { "Fn::ImportValue": !Sub "${NameTagPrefix}-frontend-subnet3" }
+      SecurityGroups:
+        - { "Fn::ImportValue": !Sub "${NameTagPrefix}-alb-sg" }
+      Tags:
+        - Key: Name
+          Value: !Sub "${NameTagPrefix}-alb"
+      Scheme: internet-facing
+  LoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn:
+            { "Fn::ImportValue": !Sub "${NameTagPrefix}-certificate-arn" }
+      SslPolicy: "ELBSecurityPolicy-2016-08"
+      DefaultActions:
+        - Type: fixed-response
+          FixedResponseConfig:
+            ContentType: "text/plain"
+            StatusCode: "404"
+            MessageBody: "NotFound"
+
+  R53RecordSetGroup:
+    Type: "AWS::Route53::RecordSetGroup"
+    Properties:
+      HostedZoneId:
+        { "Fn::ImportValue": !Sub "${NameTagPrefix}-hosted-zone-id" }
+      RecordSets:
+        - Name: !Sub "${RecordName}"
+          Type: A
+          AliasTarget:
+            HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
+            DNSName: !GetAtt LoadBalancer.DNSName
+
+Outputs:
+  LoadBalancerArn:
+    Value: !Ref "LoadBalancer"
+    Export:
+      Name: !Sub "${NameTagPrefix}-alb-arn"
+  LoadBalancerListenerArn:
+    Value: !Ref "LoadBalancerListener"
+    Export:
+      Name: !Sub "${NameTagPrefix}-alb-listener-arn"

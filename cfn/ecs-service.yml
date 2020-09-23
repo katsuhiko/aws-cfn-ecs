@@ -64,7 +64,7 @@ Resources:
         - Name: app
           Image:
             !Sub [
-              "${Param1}:init",
+              "${Param1}:latest",
               {
                 Param1:
                   { "Fn::ImportValue": !Sub "${NameTagPrefix}-app-repository" },
@@ -104,9 +104,46 @@ Resources:
             - { "Fn::ImportValue": !Sub "${NameTagPrefix}-frontend-subnet1" }
             - { "Fn::ImportValue": !Sub "${NameTagPrefix}-frontend-subnet2" }
             - { "Fn::ImportValue": !Sub "${NameTagPrefix}-frontend-subnet3" }
+      LoadBalancers:
+        - TargetGroupArn: !Ref TargetGroup
+          ContainerPort: 80
+          ContainerName: app
+
+  ##############################
+  # ALB TargetGroup
+  ##############################
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${NameTagPrefix}-tg
+      VpcId: { "Fn::ImportValue": !Sub "${NameTagPrefix}-vpc" }
+      Port: 80
+      Protocol: HTTP
+      TargetType: ip
+      HealthCheckPath: "/"
+      TargetGroupAttributes:
+        - Key: "deregistration_delay.timeout_seconds"
+          Value: 10
+  LoadBalancerListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn:
+        { "Fn::ImportValue": !Sub "${NameTagPrefix}-alb-listener-arn" }
+      Priority: 1
+      Conditions:
+        - Field: host-header
+          Values:
+            - "*.*"
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup
 
 Outputs:
-  ECSService:
+  ECSServiceArn:
     Value: !Ref ECSService
     Export:
-      Name: !Sub "${NameTagPrefix}-ecs-service"
+      Name: !Sub "${NameTagPrefix}-ecs-service-arn"
+  TargetGroupArn:
+    Value: !Ref TargetGroup
+    Export:
+      Name: !Sub "${NameTagPrefix}-tg-arn"
