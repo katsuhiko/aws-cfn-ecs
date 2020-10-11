@@ -5,6 +5,10 @@ Parameters:
     Type: String
     Default: demo
     Description: Project name
+  Subdomain:
+    Type: String
+    Default: sample
+    Description: Application subdomain
   SecuritySalt:
     Type: String
     Default: KsNl3dlYuYLYniYcW89J2J2H2Xzrbe6x4SgolxFmn5B32DLssjXekgVZ4Rg3JKZc
@@ -158,7 +162,7 @@ Resources:
       Conditions:
         - Field: host-header
           Values:
-            - "sample.*"
+            - !Sub "${Subdomain}.*"
       Actions:
         - Type: forward
           TargetGroupArn: !Ref TargetGroup
