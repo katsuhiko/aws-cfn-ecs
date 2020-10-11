@@ -5,13 +5,35 @@ Parameters:
     Type: String
     Default: demo
     Description: Project name
+  Subdomain:
+    Type: String
+    Default: sample
+    Description: Application subdomain
+  SecuritySalt:
+    Type: String
+    Default: KsNl3dlYuYLYniYcW89J2J2H2Xzrbe6x4SgolxFmn5B32DLssjXekgVZ4Rg3JKZc
+    Description: Security salt
 
 Resources:
   ##############################
   # IAM Role
   ##############################
   # Fargate（アプリケーション）に付与する権限
-  ECSTaskRole:
+  ECSAppTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${ProjectName}-ecs-task-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+
+  ECSWebTaskRole:
     Type: AWS::IAM::Role
     Properties:
       RoleName: !Sub "${ProjectName}-ecs-task-role"
@@ -49,11 +71,11 @@ Resources:
       LogGroupName: !Sub "/ecs/${ProjectName}-template"
       RetentionInDays: 3
 
-  ECSTaskDefinition:
+  ECSAppTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: !Sub "${ProjectName}-template"
-      TaskRoleArn: !GetAtt ECSTaskRole.Arn
+      Family: !Sub "${ProjectName}-app-template"
+      TaskRoleArn: !GetAtt ECSAppTaskRole.Arn
       ExecutionRoleArn: !GetAtt ECSExecutionRole.Arn
       RequiresCompatibilities:
         - FARGATE
@@ -76,13 +98,47 @@ Resources:
               awslogs-group: !Ref ECSTaskLogGroup
               awslogs-region: !Ref "AWS::Region"
               awslogs-stream-prefix: ecs
+          Environment:
+            - Name: APP_NAME
+              Value: !Sub "${ProjectName}"
+            - Name: DEBUG
+              Value: 0
+            - Name: SERVER
+              Value: 1
+            - Name: SECURITY_SALT
+              Value: !Sub "${SecuritySalt}"
+
+  ECSWebTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub "${ProjectName}-web-template"
+      TaskRoleArn: !GetAtt ECSWebTaskRole.Arn
+      ExecutionRoleArn: !GetAtt ECSExecutionRole.Arn
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: 256
+      Memory: 512
+      NetworkMode: awsvpc
+      ContainerDefinitions:
+        - Name: web
+          Image:
+            !Sub [
+              "${Param1}:latest",
+              {
+                Param1:
+                  { "Fn::ImportValue": !Sub "${ProjectName}-web-repository" },
+              },
+            ]
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref ECSTaskLogGroup
+              awslogs-region: !Ref "AWS::Region"
+              awslogs-stream-prefix: ecs
           PortMappings:
             - HostPort: 80
               Protocol: tcp
               ContainerPort: 80
-          Environment:
-            - Name: APP_NAME
-              Value: sample
 
   ##############################
   # ECS Service
@@ -107,7 +163,7 @@ Resources:
       LoadBalancers:
         - TargetGroupArn: !Ref TargetGroup
           ContainerPort: 80
-          ContainerName: app
+          ContainerName: web
 
   ##############################
   # ALB TargetGroup
@@ -133,7 +189,7 @@ Resources:
       Conditions:
         - Field: host-header
           Values:
-            - "*.*"
+            - !Sub "${Subdomain}.*"
       Actions:
         - Type: forward
           TargetGroupArn: !Ref TargetGroup
