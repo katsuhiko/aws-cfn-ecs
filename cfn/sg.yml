@@ -5,10 +5,6 @@ Parameters:
     Type: String
     Default: demo
     Description: Project name
-  RDSConnectionPort:
-    Type: String
-    Default: 3306
-    Description: Port for DB connection (3306:mysql)
 
 Resources:
   ##############################
@@ -53,12 +49,12 @@ Resources:
       GroupDescription: Security group for RDS
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: !Ref "RDSConnectionPort"
-          ToPort: !Ref "RDSConnectionPort"
+          FromPort: "3306"
+          ToPort: "3306"
           SourceSecurityGroupId: !Ref "WebSecurityGroup"
         - IpProtocol: tcp
-          FromPort: !Ref "RDSConnectionPort"
-          ToPort: !Ref "RDSConnectionPort"
+          FromPort: "3306"
+          ToPort: "3306"
           SourceSecurityGroupId: !Ref "BastionSecurityGroup"
       Tags:
         - Key: Name
