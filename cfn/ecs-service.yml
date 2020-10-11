@@ -5,10 +5,6 @@ Parameters:
     Type: String
     Default: demo
     Description: Project name
-  Subdomain:
-    Type: String
-    Default: sample
-    Description: Application subdomain
   SecuritySalt:
     Type: String
     Default: KsNl3dlYuYLYniYcW89J2J2H2Xzrbe6x4SgolxFmn5B32DLssjXekgVZ4Rg3JKZc
@@ -19,21 +15,7 @@ Resources:
   # IAM Role
   ##############################
   # Fargate（アプリケーション）に付与する権限
-  ECSAppTaskRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub "${ProjectName}-ecs-task-role"
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: ecs-tasks.amazonaws.com
-            Action: "sts:AssumeRole"
-      ManagedPolicyArns:
-        - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-
-  ECSWebTaskRole:
+  ECSTaskRole:
     Type: AWS::IAM::Role
     Properties:
       RoleName: !Sub "${ProjectName}-ecs-task-role"
@@ -71,11 +53,11 @@ Resources:
       LogGroupName: !Sub "/ecs/${ProjectName}-template"
       RetentionInDays: 3
 
-  ECSAppTaskDefinition:
+  ECSTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: !Sub "${ProjectName}-app-template"
-      TaskRoleArn: !GetAtt ECSAppTaskRole.Arn
+      Family: !Sub "${ProjectName}-template"
+      TaskRoleArn: !GetAtt ECSTaskRole.Arn
       ExecutionRoleArn: !GetAtt ECSExecutionRole.Arn
       RequiresCompatibilities:
         - FARGATE
@@ -106,20 +88,7 @@ Resources:
             - Name: SERVER
               Value: 1
             - Name: SECURITY_SALT
-              Value: !Sub "${SecuritySalt}"
-
-  ECSWebTaskDefinition:
-    Type: AWS::ECS::TaskDefinition
-    Properties:
-      Family: !Sub "${ProjectName}-web-template"
-      TaskRoleArn: !GetAtt ECSWebTaskRole.Arn
-      ExecutionRoleArn: !GetAtt ECSExecutionRole.Arn
-      RequiresCompatibilities:
-        - FARGATE
-      Cpu: 256
-      Memory: 512
-      NetworkMode: awsvpc
-      ContainerDefinitions:
+              Value: !Ref "SecuritySalt"
         - Name: web
           Image:
             !Sub [
@@ -189,7 +158,7 @@ Resources:
       Conditions:
         - Field: host-header
           Values:
-            - !Sub "${Subdomain}.*"
+            - "sample.*"
       Actions:
         - Type: forward
           TargetGroupArn: !Ref TargetGroup
