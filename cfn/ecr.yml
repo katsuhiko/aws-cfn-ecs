@@ -5,6 +5,10 @@ Parameters:
     Type: String
     Default: demo
     Description: Project name
+  Subdomain:
+    Type: String
+    Default: cakephp
+    Description: Application subdomain
 
 Resources:
   ##############################
@@ -13,7 +17,7 @@ Resources:
   AppRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub "${ProjectName}-app"
+      RepositoryName: !Sub "${ProjectName}-${Subdomain}-app"
       LifecyclePolicy:
         LifecyclePolicyText: |
           {
@@ -35,7 +39,7 @@ Resources:
   WebRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: !Sub "${ProjectName}-web"
+      RepositoryName: !Sub "${ProjectName}-${Subdomain}-web"
       LifecyclePolicy:
         LifecyclePolicyText: |
           {
@@ -59,8 +63,8 @@ Outputs:
   AppRepository:
     Value: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${AppRepository}"
     Export:
-      Name: !Sub "${ProjectName}-app-repository"
+      Name: !Sub "${ProjectName}-${Subdomain}-app-repository"
   WebRepository:
     Value: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${WebRepository}"
     Export:
-      Name: !Sub "${ProjectName}-web-repository"
+      Name: !Sub "${ProjectName}-${Subdomain}-web-repository"
