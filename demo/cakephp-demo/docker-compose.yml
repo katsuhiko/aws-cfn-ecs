@@ -3,8 +3,10 @@ version: '3.5'
 networks:
   frontend:
     driver: bridge
+    name: frontend
   backend:
     driver: bridge
+    name: backend
 
 volumes:
   db-data:
