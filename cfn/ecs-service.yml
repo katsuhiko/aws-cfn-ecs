@@ -15,7 +15,6 @@ Parameters:
   #   Description: Security salt
 
 Resources:
-
   ##############################
   # Secrets Manager
   ##############################
@@ -95,7 +94,9 @@ Resources:
               "${Param1}:latest",
               {
                 Param1:
-                  { "Fn::ImportValue": !Sub "${ProjectName}-${Subdomain}-app-repository" },
+                  {
+                    "Fn::ImportValue": !Sub "${ProjectName}-${Subdomain}-app-repository",
+                  },
               },
             ]
           LogConfiguration:
@@ -120,7 +121,9 @@ Resources:
               "${Param1}:latest",
               {
                 Param1:
-                  { "Fn::ImportValue": !Sub "${ProjectName}-${Subdomain}-web-repository" },
+                  {
+                    "Fn::ImportValue": !Sub "${ProjectName}-${Subdomain}-web-repository",
+                  },
               },
             ]
           LogConfiguration:
@@ -180,8 +183,7 @@ Resources:
   LoadBalancerListenerRule:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     Properties:
-      ListenerArn:
-        { "Fn::ImportValue": !Sub "${ProjectName}-alb-listener-arn" }
+      ListenerArn: { "Fn::ImportValue": !Sub "${ProjectName}-alb-listener-arn" }
       Priority: 1
       Conditions:
         - Field: host-header
@@ -203,7 +205,7 @@ Outputs:
 
   GetDSecuritySaltByCLI:
     Value: !Sub |+
-        aws secretsmanager get-secret-value
-          --secret-id ${SecuritySalt}
-          --region ${AWS::Region}
-          --query SecretString
+      aws secretsmanager get-secret-value
+        --secret-id ${SecuritySalt}
+        --region ${AWS::Region}
+        --query SecretString
