@@ -55,7 +55,7 @@ Resources:
       RetentionInDays: 3
 
   ##############################
-  # Aurora
+  # Aurora Cluster
   ##############################
   DBClusterParameterGroup:
     Type: AWS::RDS::DBClusterParameterGroup
@@ -99,6 +99,9 @@ Resources:
       - GeneralLogGroup
       - SlowqueryLogGroup
 
+  ##############################
+  # Aurora Instance
+  ##############################
   DBOptionGroup:
     Type: AWS::RDS::OptionGroup
     Properties:
