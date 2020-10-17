@@ -5,10 +5,6 @@ Parameters:
     Type: String
     Default: demo
     Description: Project name
-  RecordName:
-    Type: String
-    Default: "*.demo.example.com"
-    Description: Record name
 
 Resources:
   ##############################
@@ -48,10 +44,16 @@ Resources:
   R53RecordSetGroup:
     Type: "AWS::Route53::RecordSetGroup"
     Properties:
-      HostedZoneId:
-        { "Fn::ImportValue": !Sub "${ProjectName}-hosted-zone-id" }
+      HostedZoneId: { "Fn::ImportValue": !Sub "${ProjectName}-hosted-zone-id" }
       RecordSets:
-        - Name: !Sub "${RecordName}"
+        - Name:
+            !Sub [
+              "*.${Param1}",
+              {
+                Param1:
+                  { "Fn::ImportValue": !Sub "${ProjectName}-hosted-zone-name" },
+              },
+            ]
           Type: A
           AliasTarget:
             HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
