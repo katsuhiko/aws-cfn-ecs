@@ -203,7 +203,7 @@ Outputs:
     Export:
       Name: !Sub "${ProjectName}-${Subdomain}-tg-arn"
 
-  GetDSecuritySaltByCLI:
+  GetSecuritySaltByCLI:
     Value: !Sub |+
       aws secretsmanager get-secret-value
         --secret-id ${SecuritySalt}
