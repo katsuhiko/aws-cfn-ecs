@@ -9,12 +9,24 @@ Parameters:
     Type: String
     Default: cakephp
     Description: Application subdomain
-  SecuritySalt:
-    Type: String
-    Default: KsNl3dlYuYLYniYcW89J2J2H2Xzrbe6x4SgolxFmn5B32DLssjXekgVZ4Rg3JKZc
-    Description: Security salt
+  # SecuritySalt:
+  #   Type: String
+  #   Default: KsNl3dlYuYLYniYcW89J2J2H2Xzrbe6x4SgolxFmn5B32DLssjXekgVZ4Rg3JKZc
+  #   Description: Security salt
 
 Resources:
+
+  ##############################
+  # Secrets Manager
+  ##############################
+  SecuritySalt:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub "/${ProjectName}/${Subdomain}/security-salt"
+      GenerateSecretString:
+        PasswordLength: 64
+        ExcludePunctuation: true
+
   ##############################
   # IAM Role
   ##############################
@@ -47,6 +59,14 @@ Resources:
             Action: "sts:AssumeRole"
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+      Policies:
+        - PolicyName: SecretsManager
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource: !Ref SecuritySalt
 
   ##############################
   # ECS Task Denisition
@@ -91,8 +111,9 @@ Resources:
               Value: 0
             - Name: SERVER
               Value: 1
+          Secrets:
             - Name: SECURITY_SALT
-              Value: !Ref "SecuritySalt"
+              ValueFrom: !Ref SecuritySalt
         - Name: web
           Image:
             !Sub [
@@ -179,3 +200,10 @@ Outputs:
     Value: !Ref TargetGroup
     Export:
       Name: !Sub "${ProjectName}-${Subdomain}-tg-arn"
+
+  GetDSecuritySaltByCLI:
+    Value: !Sub |+
+        aws secretsmanager get-secret-value
+          --secret-id ${SecuritySalt}
+          --region ${AWS::Region}
+          --query SecretString
