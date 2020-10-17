@@ -8,15 +8,15 @@
 cd cakephp-demo
 
 # DockerImage の作成
-docker build -t cakephp-demo-app -f ./docker/server/php-fpm/Dockerfile .
-docker build -t cakephp-demo-web -f ./docker/server/nginx/Dockerfile .
+docker build -t demo-cakephp-app -f ./docker/server/php-fpm/Dockerfile .
+docker build -t demo-cakephp-web -f ./docker/server/nginx/Dockerfile .
 
 # DB はデプロイ対象ではないので、ローカル開発用のDBを起動
 docker-compose up -d db
 
 # 作成した DockerImage を起動
-docker run -d --name app --link db:db --net backend --env DEBUG=false cakephp-demo-app
-docker run -d --name web --link app:app --net backend -p 80:80 cakephp-demo-web
+docker run -d --name app --link db:db --net backend --env DEBUG=false demo-cakephp-app
+docker run -d --name web --link app:app --net backend -p 80:80 demo-cakephp-web
 
 # 確認が終わったら停止
 docker stop web; docker rm web
