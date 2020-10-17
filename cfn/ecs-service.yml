@@ -202,6 +202,14 @@ Outputs:
     Value: !Ref TargetGroup
     Export:
       Name: !Sub "${ProjectName}-${Subdomain}-tg-arn"
+  ApplicationURL:
+    Value:
+      !Sub [
+        "https://${Subdomain}.${Param1}/",
+        {
+          Param1: { "Fn::ImportValue": !Sub "${ProjectName}-hosted-zone-name" },
+        },
+      ]
 
   GetSecuritySaltByCLI:
     Value: !Sub |+

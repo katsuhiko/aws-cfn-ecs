@@ -19,7 +19,7 @@ source ~/.bashrc
 
 - ecr.yml : なし
 - ecs-cluster.yml : なし
-- ecs-service.yml : vpc.yml, sg.yml, ecr.yml, ecs-cluster.yml, alb.yml
+- ecs-service.yml : vpc.yml, sg.yml, ecr.yml, ecs-cluster.yml, alb.yml, (route53.yml)
 
 
 ## CloudFormationの実行コマンド (VPC)
@@ -39,7 +39,7 @@ aws cloudformation deploy --stack-name demo-route53 --template-file ./cfn/route5
 aws cloudformation deploy --stack-name demo-vpc --template-file ./cfn/vpc.yml --profile demo
 aws cloudformation deploy --stack-name demo-sg --template-file ./cfn/sg.yml --profile demo
 
-aws cloudformation deploy --stack-name demo-alb --template-file ./cfn/alb.yml --profile demo --parameter-overrides RecordName="*.demo.example.com"
+aws cloudformation deploy --stack-name demo-alb --template-file ./cfn/alb.yml --profile demo
 aws cloudformation deploy --stack-name demo-aurora-mysql --template-file ./cfn/aurora-mysql.yml --profile demo
 
 aws cloudformation deploy --stack-name demo-ecr --template-file ./cfn/ecr.yml --profile demo
