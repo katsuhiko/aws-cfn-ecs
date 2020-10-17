@@ -149,7 +149,10 @@ Resources:
       Port: 80
       Protocol: HTTP
       TargetType: ip
+      HealthCheckProtocol: HTTP
       HealthCheckPath: "/"
+      Matcher:
+        HttpCode: 200,302
       TargetGroupAttributes:
         - Key: "deregistration_delay.timeout_seconds"
           Value: 10
