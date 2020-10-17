@@ -15,6 +15,7 @@ source ~/.bashrc
 - sg.yml : vpc.yml
 
 - alb.yml : route53.yml, vpc.yml, sg.yml
+- aurora-mysql.yml : vpc.yml, sg.yml
 
 - ecr.yml : なし
 - ecs-cluster.yml : なし
@@ -39,6 +40,7 @@ aws cloudformation deploy --stack-name demo-vpc --template-file ./cfn/vpc.yml --
 aws cloudformation deploy --stack-name demo-sg --template-file ./cfn/sg.yml --profile demo
 
 aws cloudformation deploy --stack-name demo-alb --template-file ./cfn/alb.yml --profile demo --parameter-overrides RecordName="*.demo.example.com"
+aws cloudformation deploy --stack-name demo-aurora-mysql --template-file ./cfn/aurora-mysql.yml --profile demo
 
 aws cloudformation deploy --stack-name demo-ecr --template-file ./cfn/ecr.yml --profile demo
 aws cloudformation deploy --stack-name demo-ecs-cluster --template-file ./cfn/ecs-cluster.yml --profile demo

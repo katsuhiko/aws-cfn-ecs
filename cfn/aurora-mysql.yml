@@ -1,0 +1,162 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Aurora MySQL Template
+Parameters:
+  ProjectName:
+    Type: String
+    Default: demo
+    Description: Project name
+  Subdomain:
+    Type: String
+    Default: cakephp
+    Description: Application subdomain
+  DBUser:
+    Type: String
+    Default: admin
+    Description: DB user
+  # DBPassword:
+  #   Type: String
+  #   Default: passw0rd
+  #   Description: DB password
+
+Resources:
+  ##############################
+  # Secrets Manager
+  ##############################
+  DBPassword:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub "/${ProjectName}/${Subdomain}/db-password"
+      GenerateSecretString:
+        PasswordLength: 16
+        ExcludeCharacters: '"@/\'
+
+  ##############################
+  # Log Group
+  ##############################
+  AuditLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/rds/cluster/${ProjectName}-${Subdomain}-cluster/audit"
+      RetentionInDays: 3
+  ErrorLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/rds/cluster/${ProjectName}-${Subdomain}-cluster/error"
+      RetentionInDays: 3
+  GeneralLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/rds/cluster/${ProjectName}-${Subdomain}-cluster/general"
+      RetentionInDays: 3
+  SlowqueryLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/rds/cluster/${ProjectName}-${Subdomain}-cluster/slowquery"
+      RetentionInDays: 3
+
+  ##############################
+  # Aurora
+  ##############################
+  DBClusterParameterGroup:
+    Type: AWS::RDS::DBClusterParameterGroup
+    Properties:
+      Family: "aurora-mysql5.7"
+      Description: !Sub "${ProjectName}-${Subdomain}-cluster-parameter-group"
+      Parameters:
+        time_zone: "Asia/Tokyo"
+        server_audit_logging: 0
+        server_audit_events: "CONNECT,QUERY"
+  DBCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      DBClusterIdentifier: !Sub "${ProjectName}-${Subdomain}-cluster"
+      Engine: aurora-mysql
+      DBClusterParameterGroupName: !Ref DBClusterParameterGroup
+      DBSubnetGroupName:
+        { "Fn::ImportValue": !Sub "${ProjectName}-datastore-db-subnet-group" }
+      # DeletionProtection: true
+      DatabaseName: !Sub "${ProjectName}_${Subdomain}"
+      MasterUsername: !Ref DBUser
+      MasterUserPassword: !Sub "{{resolve:secretsmanager:${DBPassword}:SecretString}}"
+      Port: 3306
+      EnableCloudwatchLogsExports:
+        - audit
+        - error
+        - general
+        - slowquery
+      BackupRetentionPeriod: 10
+      PreferredBackupWindow: "01:00-01:30"
+      PreferredMaintenanceWindow: "Sat:02:00-Sat:02:30"
+      StorageEncrypted: true
+      VpcSecurityGroupIds:
+        - { "Fn::ImportValue": !Sub "${ProjectName}-rds-sg" }
+      Tags:
+        - Key: Name
+          Value: !Sub "${ProjectName}-${Subdomain}-cluster"
+    DependsOn:
+      - AuditLogGroup
+      - ErrorLogGroup
+      - GeneralLogGroup
+      - SlowqueryLogGroup
+
+  DBOptionGroup:
+    Type: AWS::RDS::OptionGroup
+    Properties:
+      EngineName: "aurora-mysql"
+      MajorEngineVersion: "5.7"
+      OptionGroupDescription: !Sub "${ProjectName}-${Subdomain}-rds-option-group"
+      Tags:
+        - Key: Name
+          Value: !Sub "${ProjectName}-${Subdomain}-rds-option-group"
+  DBInstanceParameterGroup:
+    Type: AWS::RDS::DBParameterGroup
+    Properties:
+      Family: "aurora-mysql5.7"
+      Description: !Sub "${ProjectName}-${Subdomain}-instance-parameter-group"
+      Parameters:
+        general_log: 0
+        slow_query_log: 1
+        long_query_time: 10
+        log_output: FILE
+  DBInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: !Sub "${ProjectName}-${Subdomain}"
+      Engine: aurora-mysql
+      DBInstanceClass: "db.t3.small"
+      DBClusterIdentifier: !Ref DBCluster
+      AvailabilityZone: !Select [0, !GetAZs { Ref: "AWS::Region" }]
+      DBSubnetGroupName:
+        { "Fn::ImportValue": !Sub "${ProjectName}-datastore-db-subnet-group" }
+      OptionGroupName: !Ref DBOptionGroup
+      DBParameterGroupName: !Ref DBInstanceParameterGroup
+      AutoMinorVersionUpgrade: true
+      PubliclyAccessible: false
+      Tags:
+        - Key: Name
+          Value: !Sub "${ProjectName}-${Subdomain}"
+
+Outputs:
+  AuroraEndpointAddress:
+    Value: !GetAtt DBCluster.Endpoint.Address
+    Export:
+      Name: !Sub "${ProjectName}-${Subdomain}-aurora-endpoint-address"
+  AuroraEndpointPort:
+    Value: !GetAtt DBCluster.Endpoint.Port
+    Export:
+      Name: !Sub "${ProjectName}-${Subdomain}-aurora-endpoint-port"
+  AuroraReadEndpointPort:
+    Value: !GetAtt DBCluster.ReadEndpoint.Address
+    Export:
+      Name: !Sub "${ProjectName}-${Subdomain}-aurora-read-endpoint-address"
+  AuroraDBPasswordSecretArn:
+    Value: !Ref DBPassword
+    Export:
+      Name: !Sub "${ProjectName}-${Subdomain}-aurora-db-password-secret-arn"
+
+  GetDBPasswordByCLI:
+    Value: !Sub |+
+      aws secretsmanager get-secret-value
+        --secret-id ${DBPassword}
+        --region ${AWS::Region}
+        --query SecretString
