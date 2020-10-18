@@ -55,6 +55,19 @@ Resources:
       RetentionInDays: 3
 
   ##############################
+  # DB Subnet Group
+  ##############################
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupName: !Sub "${ProjectName}-${Subdomain}-db-subnet-group"
+      DBSubnetGroupDescription: Subnets available for the RDS DB Instance
+      SubnetIds:
+        - { "Fn::ImportValue": !Sub "${ProjectName}-datastore-subnet1" }
+        - { "Fn::ImportValue": !Sub "${ProjectName}-datastore-subnet2" }
+        - { "Fn::ImportValue": !Sub "${ProjectName}-datastore-subnet3" }
+
+  ##############################
   # Aurora Cluster
   ##############################
   DBClusterParameterGroup:
@@ -72,8 +85,7 @@ Resources:
       DBClusterIdentifier: !Sub "${ProjectName}-${Subdomain}-cluster"
       Engine: aurora-mysql
       DBClusterParameterGroupName: !Ref DBClusterParameterGroup
-      DBSubnetGroupName:
-        { "Fn::ImportValue": !Sub "${ProjectName}-datastore-db-subnet-group" }
+      DBSubnetGroupName: !Ref DBSubnetGroup
       # DeletionProtection: true
       DatabaseName: !Sub "${ProjectName}_${Subdomain}"
       MasterUsername: !Ref DBUser
@@ -129,8 +141,7 @@ Resources:
       DBInstanceClass: "db.t3.small"
       DBClusterIdentifier: !Ref DBCluster
       AvailabilityZone: !Select [0, !GetAZs { Ref: "AWS::Region" }]
-      DBSubnetGroupName:
-        { "Fn::ImportValue": !Sub "${ProjectName}-datastore-db-subnet-group" }
+      DBSubnetGroupName: !Ref DBSubnetGroup
       OptionGroupName: !Ref DBOptionGroup
       DBParameterGroupName: !Ref DBInstanceParameterGroup
       AutoMinorVersionUpgrade: true
@@ -156,6 +167,10 @@ Outputs:
     Value: !Ref DBPassword
     Export:
       Name: !Sub "${ProjectName}-${Subdomain}-aurora-db-password-secret-arn"
+  AuroraDBSubnetGroup:
+    Value: !Ref DBSubnetGroup
+    Export:
+      Name: !Sub "${ProjectName}-${Subdomain}-aurora-db-subnet-group"
 
   GetDBPasswordByCLI:
     Value: !Sub |+

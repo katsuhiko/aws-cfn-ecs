@@ -296,16 +296,6 @@ Resources:
       SubnetId: !Ref "DatastoreSubnet3"
       RouteTableId: !Ref "DatastoreRouteTable"
 
-  DatastoreDBSubnetGroup:
-    Type: AWS::RDS::DBSubnetGroup
-    Properties:
-      DBSubnetGroupName: !Sub "${ProjectName}-datastore-db-subnet-group"
-      DBSubnetGroupDescription: Subnets available for the RDS DB Instance
-      SubnetIds:
-        - !Ref "DatastoreSubnet1"
-        - !Ref "DatastoreSubnet2"
-        - !Ref "DatastoreSubnet3"
-
 Outputs:
   VPC:
     Value: !Ref "VPC"
@@ -419,8 +409,3 @@ Outputs:
         "${VPCCIDR}${Param1}",
         { Param1: !FindInMap [StackConfig, DatastoreSubnet3, CIDR] },
       ]
-
-  DatastoreDBSubnetGroup:
-    Value: !Ref "DatastoreDBSubnetGroup"
-    Export:
-      Name: !Sub "${ProjectName}-datastore-db-subnet-group"
