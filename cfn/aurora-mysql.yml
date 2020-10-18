@@ -163,6 +163,14 @@ Outputs:
     Value: !GetAtt DBCluster.ReadEndpoint.Address
     Export:
       Name: !Sub "${ProjectName}-${Subdomain}-aurora-read-endpoint-address"
+  AuroraDBUser:
+    Value: !Ref DBUser
+    Export:
+      Name: !Sub "${ProjectName}-${Subdomain}-aurora-db-user"
+  AuroraDBName:
+    Value: !Sub "${ProjectName}_${Subdomain}"
+    Export:
+      Name: !Sub "${ProjectName}-${Subdomain}-aurora-db-name"
   AuroraDBPasswordSecretArn:
     Value: !Ref DBPassword
     Export:

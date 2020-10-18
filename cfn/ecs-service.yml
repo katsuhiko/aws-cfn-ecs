@@ -66,6 +66,12 @@ Resources:
               - Effect: Allow
                 Action: secretsmanager:GetSecretValue
                 Resource: !Ref SecuritySalt
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource:
+                  {
+                    "Fn::ImportValue": !Sub "${ProjectName}-${Subdomain}-aurora-db-password-secret-arn",
+                  }
 
   ##############################
   # ECS Task Denisition
@@ -112,9 +118,29 @@ Resources:
               Value: 0
             - Name: SERVER
               Value: 1
+            - Name: DB_HOST
+              Value:
+                {
+                  "Fn::ImportValue": !Sub "${ProjectName}-${Subdomain}-aurora-endpoint-address",
+                }
+            - Name: DB_USERNAME
+              Value:
+                {
+                  "Fn::ImportValue": !Sub "${ProjectName}-${Subdomain}-aurora-db-user",
+                }
+            - Name: DB_DATABASE
+              Value:
+                {
+                  "Fn::ImportValue": !Sub "${ProjectName}-${Subdomain}-aurora-db-name",
+                }
           Secrets:
             - Name: SECURITY_SALT
               ValueFrom: !Ref SecuritySalt
+            - Name: DB_PASSWORD
+              ValueFrom:
+                {
+                  "Fn::ImportValue": !Sub "${ProjectName}-${Subdomain}-aurora-db-password-secret-arn",
+                }
         - Name: web
           Image:
             !Sub [

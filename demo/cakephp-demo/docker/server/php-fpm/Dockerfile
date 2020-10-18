@@ -18,6 +18,7 @@ RUN apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev \
 RUN docker-php-ext-install opcache
 
 COPY ./ /var/www/html
+RUN cp -f /var/www/html/config/app_local.example.php /var/www/html/config/app_local.php
 
 WORKDIR /var/www/html
 

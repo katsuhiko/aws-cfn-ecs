@@ -19,7 +19,7 @@ source ~/.bashrc
 
 - ecr.yml : なし
 - ecs-cluster.yml : なし
-- ecs-service.yml : vpc.yml, sg.yml, ecr.yml, ecs-cluster.yml, alb.yml, (route53.yml)
+- ecs-service.yml : vpc.yml, sg.yml, ecr.yml, ecs-cluster.yml, alb.yml, aurora-mysql.yml (route53.yml)
 
 
 ## CloudFormationの実行コマンド (VPC)
