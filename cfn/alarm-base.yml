@@ -1,0 +1,99 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: CloudWatch Alarm Base Template
+Parameters:
+  ProjectName:
+    Type: String
+    Default: demo
+    Description: Project name
+  WorkspaceId:
+    Type: String
+    Default: ABCDE1234
+    Description: Slack Workspace ID
+  NotificationChannelId:
+    Type: String
+    Default: ABCDE1234
+    Description: Slack Channel ID for notifications
+  AlarmChannelId:
+    Type: String
+    Default: ABCDE1234
+    Description: Slack Channel ID for alarms
+
+Resources:
+  ##############################
+  # SNS Topic
+  ##############################
+  NotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub "${ProjectName}-notification-topic"
+
+  AlarmTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub "${ProjectName}-alarm-topic"
+
+  ##############################
+  # Chatbot
+  ##############################
+  ChatbotRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${ProjectName}-chatbot-role"
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: chatbot.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CloudWatch
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudwatch:Describe*
+                  - cloudwatch:Get*
+                  - cloudwatch:List*
+                Resource:
+                  - "*"
+  NotificationChatbot:
+    Type: AWS::Chatbot::SlackChannelConfiguration
+    Properties:
+      ConfigurationName: !Sub "${ProjectName}-notification-chatbot"
+      IamRoleArn: !GetAtt ChatbotRole.Arn
+      LoggingLevel: NONE
+      SlackWorkspaceId: !Ref WorkspaceId
+      SlackChannelId: !Ref NotificationChannelId
+      SnsTopicArns:
+        - !Ref NotificationTopic
+
+  AlarmChatbot:
+    Type: AWS::Chatbot::SlackChannelConfiguration
+    Properties:
+      ConfigurationName: !Sub "${ProjectName}-alarm-chatbot"
+      IamRoleArn: !GetAtt ChatbotRole.Arn
+      LoggingLevel: NONE
+      SlackWorkspaceId: !Ref WorkspaceId
+      SlackChannelId: !Ref AlarmChannelId
+      SnsTopicArns:
+        - !Ref AlarmTopic
+
+Outputs:
+  NotificationTopicArn:
+    Value: !Ref NotificationTopic
+    Export:
+      Name: !Sub "${ProjectName}-notification-topic-arn"
+  NotificationTopicName:
+    Value: !GetAtt NotificationTopic.TopicName
+    Export:
+      Name: !Sub "${ProjectName}-notification-topic-name"
+  AlarmTopicArn:
+    Value: !Ref AlarmTopic
+    Export:
+      Name: !Sub "${ProjectName}-alarm-topic-arn"
+  AlarmTopicName:
+    Value: !GetAtt AlarmTopic.TopicName
+    Export:
+      Name: !Sub "${ProjectName}-alarm-topic-name"

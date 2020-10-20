@@ -21,6 +21,8 @@ source ~/.bashrc
 - ecs-cluster.yml : なし
 - ecs-service.yml : vpc.yml, sg.yml, ecr.yml, ecs-cluster.yml, alb.yml, aurora-mysql.yml (route53.yml)
 
+- alarm-base.yml : なし
+
 
 ## CloudFormationの実行コマンド (VPC)
 
@@ -33,6 +35,9 @@ aws cloudformation deploy --stack-name demo-vpc --template-file ./cfn/vpc.yml --
 ### deploy
 
 ```
+# aws sns list-topics --query 'Topics[].TopicArn' --profile demo
+# --notification-arns arn:aws:sns:ap-northeast-1:99999999999:demo-notification-topic
+
 aws cloudformation deploy --stack-name demo-route53 --template-file ./cfn/route53.yml --profile demo --parameter-overrides ZoneName=demo.example.com
 ※ ドメインの条件により、AWS管理コンソールの Certificate Manager から「Route 53 でのレコードの作成」を行わないといけない。
 
@@ -45,4 +50,6 @@ aws cloudformation deploy --stack-name demo-aurora-mysql --template-file ./cfn/a
 aws cloudformation deploy --stack-name demo-ecr --template-file ./cfn/ecr.yml --profile demo
 aws cloudformation deploy --stack-name demo-ecs-cluster --template-file ./cfn/ecs-cluster.yml --profile demo
 aws cloudformation deploy --stack-name demo-ecs-service --template-file ./cfn/ecs-service.yml --capabilities CAPABILITY_NAMED_IAM --profile demo
+
+aws cloudformation deploy --stack-name demo-alarm-base --template-file ./cfn/alarm-base.yml --capabilities CAPABILITY_NAMED_IAM --profile demo --parameter-overrides WorkspaceId=ABCDE1234 NotificationChannelId=ABCDE1234 AlarmChannelId=ABCDE1234
 ```
