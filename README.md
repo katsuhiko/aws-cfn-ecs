@@ -52,4 +52,5 @@ aws cloudformation deploy --stack-name demo-ecs-cluster --template-file ./cfn/ec
 aws cloudformation deploy --stack-name demo-ecs-service --template-file ./cfn/ecs-service.yml --capabilities CAPABILITY_NAMED_IAM --profile demo
 
 aws cloudformation deploy --stack-name demo-alarm-base --template-file ./cfn/alarm-base.yml --capabilities CAPABILITY_NAMED_IAM --profile demo --parameter-overrides WorkspaceId=ABCDE1234 NotificationChannelId=ABCDE1234 AlarmChannelId=ABCDE1234
+※ AWS管理コンソールの Chatbot から「新しいクライアントを設定」を行い、Slack と連携しておく。
 ```
