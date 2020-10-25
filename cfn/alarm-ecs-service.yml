@@ -32,7 +32,10 @@ Resources:
         - Name: LoadBalancer
           Value: { "Fn::ImportValue": !Sub "${ProjectName}-alb-full-name" }
         - Name: TargetGroup
-          Value: { "Fn::ImportValue": !Sub "${ProjectName}-${Subdomain}-tg-full-name" }
+          Value:
+            {
+              "Fn::ImportValue": !Sub "${ProjectName}-${Subdomain}-tg-full-name",
+            }
       AlarmActions:
         - { "Fn::ImportValue": !Sub "${ProjectName}-alarm-topic-arn" }
       OKActions:
@@ -55,7 +58,10 @@ Resources:
         - Name: LoadBalancer
           Value: { "Fn::ImportValue": !Sub "${ProjectName}-alb-full-name" }
         - Name: TargetGroup
-          Value: { "Fn::ImportValue": !Sub "${ProjectName}-${Subdomain}-tg-full-name" }
+          Value:
+            {
+              "Fn::ImportValue": !Sub "${ProjectName}-${Subdomain}-tg-full-name",
+            }
       AlarmActions:
         - { "Fn::ImportValue": !Sub "${ProjectName}-alarm-topic-arn" }
       OKActions:
