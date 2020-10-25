@@ -22,6 +22,7 @@ source ~/.bashrc
 - ecs-service.yml : vpc.yml, sg.yml, ecr.yml, ecs-cluster.yml, alb.yml, aurora-mysql.yml (route53.yml)
 
 - alarm-base.yml : なし
+- alarm-ecs-service.yml : alarm-base.yml, alb.yml, ecs-service.yml
 
 
 ## CloudFormationの実行コマンド (VPC)
@@ -35,8 +36,10 @@ aws cloudformation deploy --stack-name demo-vpc --template-file ./cfn/vpc.yml --
 ### deploy
 
 ```
-# aws sns list-topics --query 'Topics[].TopicArn' --profile demo
 # --notification-arns arn:aws:sns:ap-northeast-1:99999999999:demo-notification-topic
+#
+# export TOPIC=$(aws sns list-topics --query 'Topics[?contains(TopicArn,`notification`)].TopicArn' --output text --profile demo)
+# --notification-arns $TOPIC
 
 aws cloudformation deploy --stack-name demo-route53 --template-file ./cfn/route53.yml --profile demo --parameter-overrides ZoneName=demo.example.com
 ※ ドメインの条件により、AWS管理コンソールの Certificate Manager から「Route 53 でのレコードの作成」を行わないといけない。
@@ -53,4 +56,5 @@ aws cloudformation deploy --stack-name demo-ecs-service --template-file ./cfn/ec
 
 aws cloudformation deploy --stack-name demo-alarm-base --template-file ./cfn/alarm-base.yml --capabilities CAPABILITY_NAMED_IAM --profile demo --parameter-overrides WorkspaceId=ABCDE1234 NotificationChannelId=ABCDE1234 AlarmChannelId=ABCDE1234
 ※ AWS管理コンソールの Chatbot から「新しいクライアントを設定」を行い、Slack と連携しておく。
+aws cloudformation deploy --stack-name demo-alarm-ecs-service --template-file ./cfn/alarm-ecs-service.yml --profile demo
 ```

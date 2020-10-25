@@ -61,10 +61,14 @@ Resources:
 
 Outputs:
   LoadBalancerArn:
-    Value: !Ref "LoadBalancer"
+    Value: !Ref LoadBalancer
     Export:
       Name: !Sub "${ProjectName}-alb-arn"
+  LoadBalancerFullName:
+    Value: !GetAtt LoadBalancer.LoadBalancerFullName
+    Export:
+      Name: !Sub "${ProjectName}-alb-full-name"
   LoadBalancerListenerArn:
-    Value: !Ref "LoadBalancerListener"
+    Value: !Ref LoadBalancerListener
     Export:
       Name: !Sub "${ProjectName}-alb-listener-arn"

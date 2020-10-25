@@ -228,6 +228,10 @@ Outputs:
     Value: !Ref TargetGroup
     Export:
       Name: !Sub "${ProjectName}-${Subdomain}-tg-arn"
+  TargetGroupFullName:
+    Value: !GetAtt TargetGroup.TargetGroupFullName
+    Export:
+      Name: !Sub "${ProjectName}-${Subdomain}-tg-full-name"
   ApplicationURL:
     Value:
       !Sub [

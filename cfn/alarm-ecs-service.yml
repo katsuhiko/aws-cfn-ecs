@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: CloudWatch Alarm ALB Template
+Parameters:
+  ProjectName:
+    Type: String
+    Default: demo
+    Description: Project name
+  Subdomain:
+    Type: String
+    Default: cakephp
+    Description: Application subdomain
+
+Resources:
+  ##############################
+  # Alarm
+  # https://docs.aws.amazon.com/ja_jp/elasticloadbalancing/latest/application/load-balancer-cloudwatch-metrics.html
+  ##############################
+  ALB5xxAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub "${ProjectName}-${Subdomain}-alb-5xx"
+      AlarmDescription: ALB HTTPCode 5XX Alarm
+      MetricName: HTTPCode_ELB_5XX_Count
+      Namespace: AWS/ApplicationELB
+      Statistic: Sum
+      Period: 300 # 5分
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching # 欠落データを適正 (しきい値を超えていない)として処理
+      Dimensions:
+        - Name: LoadBalancer
+          Value: { "Fn::ImportValue": !Sub "${ProjectName}-alb-full-name" }
+        - Name: TargetGroup
+          Value: { "Fn::ImportValue": !Sub "${ProjectName}-${Subdomain}-tg-full-name" }
+      AlarmActions:
+        - { "Fn::ImportValue": !Sub "${ProjectName}-alarm-topic-arn" }
+      OKActions:
+        - { "Fn::ImportValue": !Sub "${ProjectName}-alarm-topic-arn" }
