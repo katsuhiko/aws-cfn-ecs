@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: CloudWatch Alarm ALB Template
+Description: CloudWatch Alarm ECS Service Template
 Parameters:
   ProjectName:
     Type: String
