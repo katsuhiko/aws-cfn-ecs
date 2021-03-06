@@ -19,7 +19,7 @@ Resources:
     Properties:
       RepositoryName: !Sub "${ProjectName}-${Subdomain}-app"
       ImageScanningConfiguration: 
-        scanOnPush: "true"
+        ScanOnPush: "true"
       LifecyclePolicy:
         LifecyclePolicyText: |
           {
@@ -43,7 +43,7 @@ Resources:
     Properties:
       RepositoryName: !Sub "${ProjectName}-${Subdomain}-web"
       ImageScanningConfiguration: 
-        scanOnPush: "true"
+        ScanOnPush: "true"
       LifecyclePolicy:
         LifecyclePolicyText: |
           {
